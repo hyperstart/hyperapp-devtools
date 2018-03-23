@@ -1,27 +1,45 @@
 {
   "name": "hyperapp-devtools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Developer tools for Hyperapp projects",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hyperstart/hyperapp-devtools.git"
-  },
-  "keywords": [
-    "hyperapp",
-    "devtools",
-    "debug"
-  ],
-  "author": "ferrando.tony@gmail.com",
+  "keywords": ["hyperapp", "devtools", "debug"],
+  "author": "Anthony Ferrando <ferrando.tony@gmail.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/hyperstart/hyperapp-devtools/issues"
+  "main": "dist/hyperapp-devtools.js",
+  "minified:main": "dist/hyperapp-devtools.min.js",
+  "jsnext:main": "dist/hyperapp-devtools.es.js",
+  "module": "dist/hyperapp-devtools.es.js",
+  "typings": "dist/src/index.d.ts",
+  "scripts": {
+    "clean": "rimraf dist .rpt2_cache",
+    "build":
+      "npm run clean && npm run build:module && npm run build:main && npm run build:min",
+    "build:main": "rollup -c && rimraf .rpt2_cache",
+    "build:min": "rollup -c --min && rimraf .rpt2_cache",
+    "build:module": "rollup -c --es && rimraf .rpt2_cache"
   },
-  "homepage": "https://github.com/hyperstart/hyperapp-devtools#readme",
   "dependencies": {
     "hyperapp": "^1.2.1"
   },
   "devDependencies": {
+    "minimist": "^1.2.0",
+    "rimraf": "2.6.2",
+    "rollup": "0.50.0",
+    "rollup-plugin-commonjs": "8.2.6",
+    "rollup-plugin-node-resolve": "3.0.0",
+    "rollup-plugin-typescript2": "0.8.0",
+    "rollup-plugin-uglify": "2.0.1",
     "typescript": "^2.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyperstart/hyperapp-devtools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hyperstart/hyperapp-devtools/issues"
+  },
+  "homepage": "https://github.com/hyperstart/hyperapp-devtools#readme",
+  "prettier": {
+    "semi": false
   }
 }
