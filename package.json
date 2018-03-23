@@ -1,0 +1,27 @@
+{
+  "name": "hyperapp-devtools",
+  "version": "0.1.0",
+  "description": "Developer tools for Hyperapp projects",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyperstart/hyperapp-devtools.git"
+  },
+  "keywords": [
+    "hyperapp",
+    "devtools",
+    "debug"
+  ],
+  "author": "ferrando.tony@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hyperstart/hyperapp-devtools/issues"
+  },
+  "homepage": "https://github.com/hyperstart/hyperapp-devtools#readme",
+  "dependencies": {
+    "hyperapp": "^1.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^2.7.2"
+  }
+}
