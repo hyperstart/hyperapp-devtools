@@ -8,4 +8,3 @@ export const state: State = {
   collapseRepeatingActions: true,
   showFullState: true
 }
-export default state

@@ -3,4 +3,4 @@ export interface DebugPaneProps {
     state: State;
     actions: Actions;
 }
-export declare function DebugPane(props: DebugPaneProps): JSX.Element<Data>;
+export declare function DebugPane(props: DebugPaneProps): JSX.Element;

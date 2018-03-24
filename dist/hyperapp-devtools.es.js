@@ -96,66 +96,61 @@ function createAction(state, collapsed, existing) {
 }
 var actions = {
     log: function (event) { return function (state) {
-        if (event.type === "INITIALIZE") {
-            var runs = __assign({}, state.runs);
-            var appState = { state: event.state };
-            runs[event.id] = {
-                id: event.id,
-                timestamp: event.timestamp,
-                actions: [createAction(appState, state.collapseRepeatingActions)],
-                collapsed: false
+        return { logs: state.logs.concat([event]) };
+    }; },
+    logInit: function (event) { return function (state) {
+        var runs = __assign({}, state.runs);
+        var appState = { state: event.state };
+        runs[event.runId] = {
+            id: event.runId,
+            timestamp: event.timestamp,
+            actions: [createAction(appState, state.collapseRepeatingActions)],
+            collapsed: false
+        };
+        return { runs: runs, selectedState: appState };
+    }; },
+    logAction: function (event) { return function (state) {
+        var runs = __assign({}, state.runs);
+        var run = runs[event.runId];
+        var actions = run.actions.slice();
+        var prevAction = actions.pop();
+        var prevState = getLatestState(prevAction);
+        var appState;
+        if (prevAction.name === event.action) {
+            // append to previous action
+            appState = {
+                state: mergeResult(prevState.state, event),
+                actionData: event.data,
+                actionResult: event.result,
+                previousState: prevState.state
             };
-            return { runs: runs, selectedState: appState };
-        }
-        else if (event.type === "ACTION") {
-            var runs = __assign({}, state.runs);
-            var run = runs[event.id];
-            var actions_1 = run.actions.slice();
-            var prevAction = actions_1.pop();
-            var prevState = getLatestState(prevAction);
-            var appState = void 0;
-            if (prevAction.name === event.action) {
-                // append to previous action
-                appState = {
-                    state: mergeResult(prevState.state, event),
-                    actionData: event.data,
-                    actionResult: event.result,
-                    previousState: prevState.state
-                };
-                var action = createAction(appState, state.collapseRepeatingActions, prevAction);
-                runs[event.id] = {
-                    id: event.id,
-                    timestamp: runs[event.id].timestamp,
-                    collapsed: run.collapsed,
-                    actions: actions_1.concat([action])
-                };
-            }
-            else {
-                // create new action
-                appState = {
-                    state: mergeResult(prevState.state, event),
-                    actionData: event.data,
-                    actionResult: event.result,
-                    previousState: prevState.state
-                };
-                var action = createAction(appState, state.collapseRepeatingActions, {
-                    name: event.action
-                });
-                runs[event.id] = {
-                    id: event.id,
-                    timestamp: runs[event.id].timestamp,
-                    collapsed: run.collapsed,
-                    actions: actions_1.concat([prevAction, action])
-                };
-            }
-            return { runs: runs, selectedState: appState };
-        }
-        else if (event.type === "RUNTIME") {
-            return { logs: state.logs.concat([event]) };
+            var action = createAction(appState, state.collapseRepeatingActions, prevAction);
+            runs[event.runId] = {
+                id: event.runId,
+                timestamp: runs[event.runId].timestamp,
+                collapsed: run.collapsed,
+                actions: actions.concat([action])
+            };
         }
         else {
-            console.log("Error, got unexpected event: ", event);
+            // create new action
+            appState = {
+                state: mergeResult(prevState.state, event),
+                actionData: event.data,
+                actionResult: event.result,
+                previousState: prevState.state
+            };
+            var action = createAction(appState, state.collapseRepeatingActions, {
+                name: event.action
+            });
+            runs[event.runId] = {
+                id: event.runId,
+                timestamp: runs[event.runId].timestamp,
+                collapsed: run.collapsed,
+                actions: actions.concat([prevAction, action])
+            };
         }
+        return { runs: runs, selectedState: appState };
     }; },
     toggleRun: function (id) { return function (state) {
         var runs = __assign({}, state.runs);
@@ -188,5 +183,92 @@ var actions = {
     }; }
 };
 
-export { state, actions };
+function h(name, attributes) {
+  var rest = [];
+  var children = [];
+  var length = arguments.length;
+
+  while (length-- > 2) rest.push(arguments[length]);
+
+  while (rest.length) {
+    var node = rest.pop();
+    if (node && node.pop) {
+      for (length = node.length; length--; ) {
+        rest.push(node[length]);
+      }
+    } else if (node != null && node !== true && node !== false) {
+      children.push(node);
+    }
+  }
+
+  return typeof name === "function"
+    ? name(attributes || {}, children)
+    : {
+        nodeName: name,
+        attributes: attributes || {},
+        children: children,
+        key: attributes && attributes.key
+      }
+}
+
+function view(state, actions) {
+    return h("div", null, "debug tools");
+}
+
+function enhanceActions(onAction, runId, actions, prefix) {
+    var namespace = prefix ? prefix + "." : "";
+    return Object.keys(actions || {}).reduce(function (otherActions, name) {
+        var namedspacedName = namespace + name;
+        var action = actions[name];
+        otherActions[name] =
+            typeof action === "function"
+                ? function (data) {
+                    return function (state, actions) {
+                        // TODO Do this later!
+                        // onAction({
+                        //   type: "call-start",
+                        //   action: namedspacedName,
+                        //   data,
+                        //   runId
+                        // })
+                        var result = action(data);
+                        result =
+                            typeof result === "function" ? result(state, actions) : result;
+                        onAction({
+                            type: "call-done",
+                            action: namedspacedName,
+                            data: data,
+                            result: result,
+                            runId: runId
+                        });
+                        return result;
+                    };
+                }
+                : enhanceActions(onAction, runId, action, namedspacedName);
+        return otherActions;
+    }, {});
+}
+
+var ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+var SIZE = 16;
+var rand = function () { return ALPHABET[Math.floor(Math.random() * ALPHABET.length)]; };
+var guid = function () {
+    return Array.apply(null, Array(SIZE))
+        .map(rand)
+        .join("");
+};
+function hoa$1(app) {
+    var div = document.createElement("div");
+    div.id = "hyperapp-devtools";
+    document.body.appendChild(div);
+    var devtoolsApp = app(state, actions, view, div);
+    var runId = guid();
+    return function (state, actions, view, element) {
+        actions = enhanceActions(devtoolsApp.logAction, runId, actions);
+        actions.$__SET_STATE = function (state) { return state; };
+        return app(state, actions, view, element);
+    };
+}
+
+export default hoa$1;
 //# sourceMappingURL=hyperapp-devtools.es.js.map

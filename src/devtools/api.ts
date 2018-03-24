@@ -24,24 +24,22 @@ export interface Runs {
   [id: string]: Run
 }
 
-export type AppEvent = InitEvent | ActionEvent | RuntimeEvent
-
 export interface InitEvent {
-  type: "INITIALIZE"
-  id: string
+  runId: string
   timestamp: number
   state: any
 }
 
+export type EventType = "call-start" | "call-done"
+
 export interface ActionEvent {
-  type: "ACTION"
-  id: string
+  type: EventType
+  runId: string
   action: string
   data: any
-  result: any
+  result?: any
 }
 export interface RuntimeEvent {
-  type: "RUNTIME"
   message: any
   level: "info" | "warn" | "error"
 }
@@ -63,7 +61,9 @@ export interface ToggleActionPayload {
 }
 
 export interface Actions {
-  log(event: AppEvent)
+  log(event: RuntimeEvent)
+  logInit(event: InitEvent)
+  logAction(event: ActionEvent)
   select(state: AppState | null)
   showPane(shown: boolean)
   toggleRun(run: string)

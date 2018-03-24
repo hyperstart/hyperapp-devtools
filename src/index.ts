@@ -1,4 +1,3 @@
-import state from "./state"
-import actions from "./actions"
+import hoa from "./hoa"
 
-export { state, actions }
+export default hoa

@@ -18,22 +18,20 @@ export interface Run {
 export interface Runs {
     [id: string]: Run;
 }
-export declare type AppEvent = InitEvent | ActionEvent | RuntimeEvent;
 export interface InitEvent {
-    type: "INITIALIZE";
-    id: string;
+    runId: string;
     timestamp: number;
     state: any;
 }
+export declare type EventType = "call-start" | "call-done";
 export interface ActionEvent {
-    type: "ACTION";
-    id: string;
+    type: EventType;
+    runId: string;
     action: string;
     data: any;
-    result: any;
+    result?: any;
 }
 export interface RuntimeEvent {
-    type: "RUNTIME";
     message: any;
     level: "info" | "warn" | "error";
 }
@@ -50,7 +48,9 @@ export interface ToggleActionPayload {
     actionId: number;
 }
 export interface Actions {
-    log(event: AppEvent): any;
+    log(event: RuntimeEvent): any;
+    logInit(event: InitEvent): any;
+    logAction(event: ActionEvent): any;
     select(state: AppState | null): any;
     showPane(shown: boolean): any;
     toggleRun(run: string): any;
