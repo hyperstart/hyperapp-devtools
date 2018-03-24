@@ -220,8 +220,56 @@ function h(name, attributes) {
       }
 }
 
+var defaultStyle = {
+    width: "96%",
+    height: "96%",
+    background: "#EEEEEE",
+    border: "1px solid black",
+    color: "black",
+    position: "fixed",
+    left: "2%",
+    top: "2%",
+    valign: "center"
+};
+function DebugPane(props) {
+    var state = props.state, actions = props.actions, _a = props.style, style = _a === void 0 ? defaultStyle : _a;
+    return h("div", { style: style }, JSON.stringify(state, null, 2));
+}
+//# sourceMappingURL=DebugPane.js.map
+
+var style$1 = {
+    position: "fixed",
+    right: "2%",
+    bottom: "2%",
+    "border-radius": "0px",
+    border: "1px solid black",
+    color: "black",
+    background: "white",
+    margin: "0.2rem",
+    outline: "none",
+    "font-size": "2rem"
+};
+function TogglePaneButton(props) {
+    var state = props.state, actions = props.actions;
+    return (h("button", { style: style$1, onclick: function () { return actions.showPane(!state.paneShown); } }, "Debug"));
+}
+//# sourceMappingURL=TogglePaneButton.js.map
+
+var style = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    height: "100vh",
+    width: "100vw",
+    "z-index": 10
+};
 function view(state, actions) {
-    return h("div", null, "debug tools 3 ");
+    if (state.paneShown) {
+        return (h("div", { style: style },
+            DebugPane({ state: state, actions: actions }),
+            TogglePaneButton({ state: state, actions: actions })));
+    }
+    return TogglePaneButton({ state: state, actions: actions });
 }
 
 //# sourceMappingURL=index.js.map
