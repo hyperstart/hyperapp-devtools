@@ -7,18 +7,6 @@
   border: 1px solid black;
   color: black;
 
-  .debug-toolbar {
-    display: flex;
-    justify-content: space-between;
-    flex-shrink: 0;
-    width: 100%;
-    border-bottom: 1px solid black;
-
-    .close-button {
-      margin: 0.4rem;
-    }
-  }
-
   .debug-content {
     flex-grow: 1;
 

@@ -38,12 +38,3 @@ export function DebuggerOptions(props: DebuggerOptionsProps) {
     </div>
   )
 }
-
-/* <label class="form-checkbox">
-<input
-  type="checkbox"
-  checked={state.showFullState}
-  onchange={actions.toggleShowFullState}
-/>
-<i class="form-icon" /> Show full state
-</label> */
