@@ -4,6 +4,7 @@ const commonjs = require("rollup-plugin-commonjs")
 const nodeResolve = require("rollup-plugin-node-resolve")
 const typescript = require("rollup-plugin-typescript2")
 const uglify = require("rollup-plugin-uglify")
+const postcss = require("rollup-plugin-postcss")
 
 const options = minimist(process.argv.slice(2), {
   boolean: ["min", "es"]
@@ -18,6 +19,9 @@ const plugins = [
   typescript({
     clean: true,
     exclude: ["*.d.ts", "**/*.d.ts", "*.test.*", "**/*.test.*"]
+  }),
+  postcss({
+    plugins: []
   })
 ]
 if (options.min) {
