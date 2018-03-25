@@ -27,8 +27,8 @@
     }
 
     function view(state, actions) {
-      return h("div", {},
-        h("h1", {}, state.count),
+      return h("div", { style: { margin: "2rem" } },
+        h("h1", { style: { margin: "0.5rem" } }, state.count),
         h("button", { onclick: () => actions.down(1) }, "-"),
         h("button", { onclick: () => actions.up(1) }, "+"),
       )

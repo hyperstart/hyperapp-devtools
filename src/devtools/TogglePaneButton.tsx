@@ -14,7 +14,7 @@ export function TogglePaneButton(props: TogglePaneButtonProps) {
 
   return (
     <button
-      class="toggle-pane-button"
+      class="btn toggle-pane-button"
       onclick={() => actions.showPane(!state.paneShown)}
     >
       Devtools

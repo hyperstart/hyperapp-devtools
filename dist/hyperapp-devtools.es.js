@@ -291,12 +291,12 @@ function Toolbar(props) {
         h("div", { class: "dropdown" },
             h("button", { class: "btn btn-link dropdown-toggle" }, "View"),
             h("ul", { class: "menu" },
-                h("li", null,
-                    h("a", { href: "#", class: "menu-item", onclick: function () { return actions.setPaneDisplay("fullscreen"); } }, "Full Screen")),
-                h("li", null,
-                    h("a", { href: "#", class: "menu-item", onclick: function () { return actions.setPaneDisplay("right"); } }, "Align Right")),
-                h("li", null,
-                    h("a", { href: "#", class: "menu-item", onclick: function () { return actions.setPaneDisplay("bottom"); } }, "Align Bottom")))),
+                h("li", { class: "menu-item" },
+                    h("a", { href: "#", onclick: function () { return actions.setPaneDisplay("fullscreen"); } }, "Full Screen")),
+                h("li", { class: "menu-item" },
+                    h("a", { href: "#", onclick: function () { return actions.setPaneDisplay("right"); } }, "Align Right")),
+                h("li", { class: "menu-item" },
+                    h("a", { href: "#", onclick: function () { return actions.setPaneDisplay("bottom"); } }, "Align Bottom")))),
         h("span", { class: "float-right" },
             h("button", { class: "btn btn-clear close-button", onclick: function () { return actions.showPane(false); } }))));
 }

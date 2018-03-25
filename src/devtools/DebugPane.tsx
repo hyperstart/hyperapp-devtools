@@ -16,29 +16,35 @@ function Toolbar(props: ToolbarProps) {
       <div class="dropdown">
         <button class="btn btn-link dropdown-toggle">View</button>
         <ul class="menu">
-          <li>
+          <li class="menu-item">
             <a
-              href="#"
-              class="menu-item"
-              onclick={() => actions.setPaneDisplay("fullscreen")}
+              href=""
+              onclick={e => {
+                actions.setPaneDisplay("fullscreen")
+                e.preventDefault()
+              }}
             >
               Full Screen
             </a>
           </li>
-          <li>
+          <li class="menu-item">
             <a
-              href="#"
-              class="menu-item"
-              onclick={() => actions.setPaneDisplay("right")}
+              href=""
+              onclick={e => {
+                actions.setPaneDisplay("right")
+                e.preventDefault()
+              }}
             >
               Align Right
             </a>
           </li>
-          <li>
+          <li class="menu-item">
             <a
-              href="#"
-              class="menu-item"
-              onclick={() => actions.setPaneDisplay("bottom")}
+              href=""
+              onclick={e => {
+                actions.setPaneDisplay("bottom")
+                e.preventDefault()
+              }}
             >
               Align Bottom
             </a>
