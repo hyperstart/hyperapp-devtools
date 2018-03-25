@@ -3,10 +3,6 @@ import { get, merge, set } from "../immutable"
 
 import * as api from "./api"
 
-function getLatestState(action: api.AppAction): api.AppState {
-  return action.states[action.states.length - 1]
-}
-
 function mergeResult(state: any, event: api.ActionEvent): any {
   if (event && event.result) {
     const action = event.action.split(".")
@@ -16,15 +12,77 @@ function mergeResult(state: any, event: api.ActionEvent): any {
   return state
 }
 
-function createAction(
-  state: api.AppState,
-  collapsed: boolean,
-  existing: Partial<api.AppAction> = {}
+// function createAction(
+//   state: api.AppState,
+//   collapsed: boolean,
+//   existing: Partial<api.AppAction> = {}
+// ): api.AppAction {
+//   return {
+//     name: existing.name || "Initial State",
+//     states: (existing.states || []).concat([state]),
+//     collapsed
+//   }
+// }
+
+/**
+ * Recursively goes down the tree of actions and append the given event to the last non-done action.
+ *
+ */
+function appendAction(
+  previousAction: api.AppAction,
+  event: api.ActionEvent
 ): api.AppAction {
-  return {
-    name: existing.name || "Initial State",
-    states: (existing.states || []).concat([state]),
-    collapsed
+  if (previousAction.done) {
+    return previousAction
+  }
+
+  // no nested action yet
+  if (previousAction.nestedActions.length === 0) {
+    if (!event.callDone) {
+      // the action calls to a nested action
+      const nestedAction: api.AppAction = {
+        name: event.action,
+        done: false,
+        collapsed: false,
+        actionData: event.data,
+        nestedActions: [],
+        previousState: previousAction.previousState
+      }
+
+      return {
+        ...previousAction,
+        nestedActions: [nestedAction]
+      }
+    } else if (previousAction.name === event.action) {
+      // the previous call is now complete: set to done and compute the result
+      return {
+        ...previousAction,
+        done: true,
+        actionResult: event.result,
+        nextState: mergeResult(previousAction.previousState, event)
+      }
+    } else {
+      // error case
+      console.log(
+        "Previous action is done and event.callDone",
+        previousAction,
+        event
+      )
+      // TODO what to return?!
+      return previousAction
+    }
+  } else {
+    // there are already some nested actions: call recursivelly
+    const nested = previousAction.nestedActions
+    const nestedAction = nested[nested.length - 1]
+    const newNestedAction = appendAction(nestedAction, event)
+    if (nestedAction === newNestedAction) {
+      return previousAction
+    }
+    return {
+      ...previousAction,
+      nestedActions: nested.slice(0, nested.length - 1).concat(newNestedAction)
+    }
   }
 }
 
@@ -34,63 +92,56 @@ export const actions: ActionsType<api.State, api.Actions> = {
   },
   logInit: (event: api.InitEvent) => state => {
     const runs = { ...state.runs }
-    const appState = { state: event.state }
+
+    const action: api.AppAction = {
+      name: "Initial State",
+      done: true,
+      collapsed: false,
+      nestedActions: [],
+      previousState: null,
+      nextState: event.state
+    }
+
     runs[event.runId] = {
       id: event.runId,
       timestamp: event.timestamp,
-      actions: [createAction(appState, state.collapseRepeatingActions)],
+      actions: [action],
       collapsed: false
     }
 
-    return { runs, selectedState: appState }
+    return { runs, selectedAction: action }
   },
   logAction: (event: api.ActionEvent) => state => {
     const runs = { ...state.runs }
     const run = runs[event.runId]
     const actions = [...run.actions]
+    run.actions = actions
     const prevAction = actions.pop()
-    const prevState = getLatestState(prevAction)
-    let appState: api.AppState
-    if (prevAction.name === event.action) {
-      // append to previous action
-      appState = {
-        state: mergeResult(prevState.state, event),
-        actionData: event.data,
-        actionResult: event.result,
-        previousState: prevState.state
-      }
-      const action = createAction(
-        appState,
-        state.collapseRepeatingActions,
-        prevAction
-      )
+    let selectedAction: api.AppAction
+    if (prevAction.done) {
+      // previous action done: create new action and append
+      if (!event.callDone) {
+        selectedAction = {
+          done: false,
+          collapsed: false,
+          nestedActions: [],
+          name: event.action,
+          actionData: event.data,
+          previousState: prevAction.nextState
+        }
 
-      runs[event.runId] = {
-        id: event.runId,
-        timestamp: runs[event.runId].timestamp,
-        collapsed: run.collapsed,
-        actions: [...actions, action]
+        actions.push(prevAction, selectedAction)
+      } else {
+        // error!, should we log it here?
+        console.log("Previous action is done and event.callDone", state, event)
       }
     } else {
-      // create new action
-      appState = {
-        state: mergeResult(prevState.state, event),
-        actionData: event.data,
-        actionResult: event.result,
-        previousState: prevState.state
-      }
-      const action = createAction(appState, state.collapseRepeatingActions, {
-        name: event.action
-      })
-
-      runs[event.runId] = {
-        id: event.runId,
-        timestamp: runs[event.runId].timestamp,
-        collapsed: run.collapsed,
-        actions: [...actions, prevAction, action]
-      }
+      // previous action not done: find parent action, create and append
+      selectedAction = appendAction(prevAction, event)
+      actions.push(selectedAction)
     }
-    return { runs, selectedState: appState }
+
+    return { runs, selectedAction }
   },
   toggleRun: (id: string) => state => {
     const runs = { ...state.runs }
@@ -104,8 +155,8 @@ export const actions: ActionsType<api.State, api.Actions> = {
     const runs = set(state.runs, path, !collapsed)
     return { runs }
   },
-  select: (selectedState: api.AppState | null) => {
-    return { selectedState }
+  select: (selectedAction: api.AppAction | null) => {
+    return { selectedAction }
   },
   showPane: (paneShown: boolean) => {
     return { paneShown }

@@ -4,7 +4,7 @@ export const state: State = {
   runs: {},
   logs: [],
   paneShown: false,
-  selectedState: null,
+  selectedAction: null,
   collapseRepeatingActions: true,
   showFullState: true
 }

@@ -2,7 +2,7 @@ var state = {
     runs: {},
     logs: [],
     paneShown: false,
-    selectedState: null,
+    selectedAction: null,
     collapseRepeatingActions: true,
     showFullState: true
 };
@@ -75,9 +75,6 @@ function assign(target, obj, obj2) {
     return target;
 }
 
-function getLatestState(action) {
-    return action.states[action.states.length - 1];
-}
 function mergeResult(state, event) {
     if (event && event.result) {
         var action = event.action.split(".");
@@ -86,13 +83,60 @@ function mergeResult(state, event) {
     }
     return state;
 }
-function createAction(state, collapsed, existing) {
-    if (existing === void 0) { existing = {}; }
-    return {
-        name: existing.name || "Initial State",
-        states: (existing.states || []).concat([state]),
-        collapsed: collapsed
-    };
+// function createAction(
+//   state: api.AppState,
+//   collapsed: boolean,
+//   existing: Partial<api.AppAction> = {}
+// ): api.AppAction {
+//   return {
+//     name: existing.name || "Initial State",
+//     states: (existing.states || []).concat([state]),
+//     collapsed
+//   }
+// }
+/**
+ * Recursively goes down the tree of actions and append the given event to the last non-done action.
+ *
+ */
+function appendAction(previousAction, event) {
+    if (previousAction.done) {
+        return previousAction;
+    }
+    // no nested action yet
+    if (previousAction.nestedActions.length === 0) {
+        if (!event.callDone) {
+            // the action calls to a nested action
+            var nestedAction = {
+                name: event.action,
+                done: false,
+                collapsed: false,
+                actionData: event.data,
+                nestedActions: [],
+                previousState: previousAction.previousState
+            };
+            return __assign({}, previousAction, { nestedActions: [nestedAction] });
+        }
+        else if (previousAction.name === event.action) {
+            // the previous call is now complete: set to done and compute the result
+            return __assign({}, previousAction, { done: true, actionResult: event.result, nextState: mergeResult(previousAction.previousState, event) });
+        }
+        else {
+            // error case
+            console.log("Previous action is done and event.callDone", previousAction, event);
+            // TODO what to return?!
+            return previousAction;
+        }
+    }
+    else {
+        // there are already some nested actions: call recursivelly
+        var nested = previousAction.nestedActions;
+        var nestedAction = nested[nested.length - 1];
+        var newNestedAction = appendAction(nestedAction, event);
+        if (nestedAction === newNestedAction) {
+            return previousAction;
+        }
+        return __assign({}, previousAction, { nestedActions: nested.slice(0, nested.length - 1).concat(newNestedAction) });
+    }
 }
 var actions = {
     log: function (event) { return function (state) {
@@ -100,57 +144,53 @@ var actions = {
     }; },
     logInit: function (event) { return function (state) {
         var runs = __assign({}, state.runs);
-        var appState = { state: event.state };
+        var action = {
+            name: "Initial State",
+            done: true,
+            collapsed: false,
+            nestedActions: [],
+            previousState: null,
+            nextState: event.state
+        };
         runs[event.runId] = {
             id: event.runId,
             timestamp: event.timestamp,
-            actions: [createAction(appState, state.collapseRepeatingActions)],
+            actions: [action],
             collapsed: false
         };
-        return { runs: runs, selectedState: appState };
+        return { runs: runs, selectedAction: action };
     }; },
     logAction: function (event) { return function (state) {
         var runs = __assign({}, state.runs);
         var run = runs[event.runId];
         var actions = run.actions.slice();
+        run.actions = actions;
         var prevAction = actions.pop();
-        var prevState = getLatestState(prevAction);
-        var appState;
-        if (prevAction.name === event.action) {
-            // append to previous action
-            appState = {
-                state: mergeResult(prevState.state, event),
-                actionData: event.data,
-                actionResult: event.result,
-                previousState: prevState.state
-            };
-            var action = createAction(appState, state.collapseRepeatingActions, prevAction);
-            runs[event.runId] = {
-                id: event.runId,
-                timestamp: runs[event.runId].timestamp,
-                collapsed: run.collapsed,
-                actions: actions.concat([action])
-            };
+        var selectedAction;
+        if (prevAction.done) {
+            // previous action done: create new action and append
+            if (!event.callDone) {
+                selectedAction = {
+                    done: false,
+                    collapsed: false,
+                    nestedActions: [],
+                    name: event.action,
+                    actionData: event.data,
+                    previousState: prevAction.nextState
+                };
+                actions.push(prevAction, selectedAction);
+            }
+            else {
+                // error!, should we log it here?
+                console.log("Previous action is done and event.callDone", state, event);
+            }
         }
         else {
-            // create new action
-            appState = {
-                state: mergeResult(prevState.state, event),
-                actionData: event.data,
-                actionResult: event.result,
-                previousState: prevState.state
-            };
-            var action = createAction(appState, state.collapseRepeatingActions, {
-                name: event.action
-            });
-            runs[event.runId] = {
-                id: event.runId,
-                timestamp: runs[event.runId].timestamp,
-                collapsed: run.collapsed,
-                actions: actions.concat([prevAction, action])
-            };
+            // previous action not done: find parent action, create and append
+            selectedAction = appendAction(prevAction, event);
+            actions.push(selectedAction);
         }
-        return { runs: runs, selectedState: appState };
+        return { runs: runs, selectedAction: selectedAction };
     }; },
     toggleRun: function (id) { return function (state) {
         var runs = __assign({}, state.runs);
@@ -164,8 +204,8 @@ var actions = {
         var runs = set(state.runs, path, !collapsed);
         return { runs: runs };
     }; },
-    select: function (selectedState) {
-        return { selectedState: selectedState };
+    select: function (selectedAction) {
+        return { selectedAction: selectedAction };
     },
     showPane: function (paneShown) {
         return { paneShown: paneShown };
@@ -211,8 +251,66 @@ function h(name, attributes) {
       }
 }
 
+var toolbarStyle = {
+    width: "100%",
+    height: "1.3rem",
+    "padding-top": "0.15rem",
+    "padding-left": "0.15rem",
+    "border-bottom": "1px solid black"
+};
+function Toolbar(props) {
+    return h("div", { style: toolbarStyle }, "toolbar");
+}
+var defaultStyle = {
+    width: "96%",
+    height: "96%",
+    background: "#EEEEEE",
+    border: "1px solid black",
+    color: "black",
+    position: "fixed",
+    left: "2%",
+    top: "2%",
+    valign: "center"
+};
+function DebugPane(props) {
+    var state = props.state, actions = props.actions, _a = props.style, style = _a === void 0 ? defaultStyle : _a;
+    return (h("div", { style: style, class: "debug-pane" },
+        Toolbar({ state: state, actions: actions }),
+        h("pre", null, JSON.stringify(state, null, 2))));
+}
+
+var style$1 = {
+    position: "fixed",
+    right: "2%",
+    bottom: "2%",
+    "border-radius": "0px",
+    border: "1px solid black",
+    color: "black",
+    background: "white",
+    margin: "0.2rem",
+    outline: "none",
+    "font-size": "2rem"
+};
+function TogglePaneButton(props) {
+    var state = props.state, actions = props.actions;
+    return (h("button", { style: style$1, onclick: function () { return actions.showPane(!state.paneShown); } }, "Devtools"));
+}
+
+var style = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    height: "100vh",
+    width: "100vw",
+    "z-index": 10
+};
 function view(state, actions) {
-    return h("div", null, "debug tools");
+    if (state.paneShown) {
+        return (h("div", { style: style },
+            DebugPane({ state: state, actions: actions }),
+            TogglePaneButton({ state: state, actions: actions })));
+    }
+    return TogglePaneButton({ state: state, actions: actions });
 }
 
 function enhanceActions(onAction, runId, actions, prefix) {
@@ -224,18 +322,17 @@ function enhanceActions(onAction, runId, actions, prefix) {
             typeof action === "function"
                 ? function (data) {
                     return function (state, actions) {
-                        // TODO Do this later!
-                        // onAction({
-                        //   type: "call-start",
-                        //   action: namedspacedName,
-                        //   data,
-                        //   runId
-                        // })
+                        onAction({
+                            callDone: false,
+                            action: namedspacedName,
+                            data: data,
+                            runId: runId
+                        });
                         var result = action(data);
                         result =
                             typeof result === "function" ? result(state, actions) : result;
                         onAction({
-                            type: "call-done",
+                            callDone: true,
                             action: namedspacedName,
                             data: data,
                             result: result,
@@ -262,10 +359,11 @@ function hoa$1(app) {
     div.id = "hyperapp-devtools";
     document.body.appendChild(div);
     var devtoolsApp = app(state, actions, view, div);
-    var runId = guid();
     return function (state, actions, view, element) {
+        var runId = guid();
         actions = enhanceActions(devtoolsApp.logAction, runId, actions);
         actions.$__SET_STATE = function (state) { return state; };
+        devtoolsApp.logInit({ runId: runId, state: state, timestamp: new Date().getTime() });
         return app(state, actions, view, element);
     };
 }

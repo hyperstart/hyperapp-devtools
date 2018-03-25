@@ -18,18 +18,17 @@ export function enhanceActions(
       typeof action === "function"
         ? function(data) {
             return function(state, actions) {
-              // TODO Do this later!
-              // onAction({
-              //   type: "call-start",
-              //   action: namedspacedName,
-              //   data,
-              //   runId
-              // })
+              onAction({
+                callDone: false,
+                action: namedspacedName,
+                data,
+                runId
+              })
               var result = action(data)
               result =
                 typeof result === "function" ? result(state, actions) : result
               onAction({
-                type: "call-done",
+                callDone: true,
                 action: namedspacedName,
                 data,
                 result,

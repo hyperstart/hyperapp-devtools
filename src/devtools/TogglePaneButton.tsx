@@ -25,7 +25,7 @@ export function TogglePaneButton(props: TogglePaneButtonProps) {
 
   return (
     <button style={style} onclick={() => actions.showPane(!state.paneShown)}>
-      Debug
+      Devtools
     </button>
   )
 }

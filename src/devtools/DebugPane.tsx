@@ -2,26 +2,31 @@ import { h } from "hyperapp"
 
 import { State, Actions } from "./api"
 
+import "./DebugPane.scss"
+
+interface ToolbarProps {
+  state: State
+  actions: Actions
+}
+
+function Toolbar(props: ToolbarProps) {
+  return <div class="debug-toolbar">toolbar</div>
+}
+
 export interface DebugPaneProps {
   state: State
   actions: Actions
-  style?: any
-}
-
-const defaultStyle: any = {
-  width: "96%",
-  height: "96%",
-  background: "#EEEEEE",
-  border: "1px solid black",
-  color: "black",
-  position: "fixed",
-  left: "2%",
-  top: "2%",
-  valign: "center"
 }
 
 export function DebugPane(props: DebugPaneProps) {
-  const { state, actions, style = defaultStyle } = props
+  const { state, actions } = props
 
-  return <div style={style}>{JSON.stringify(state, null, 2)}</div>
+  return (
+    <div class="debug-pane">
+      {Toolbar({ state, actions })}
+      <div class="debug-content scrollable">
+        <pre class="scrollable-content">{JSON.stringify(state, null, 2)}</pre>
+      </div>
+    </div>
+  )
 }

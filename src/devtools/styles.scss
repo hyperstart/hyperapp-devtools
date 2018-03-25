@@ -1,0 +1,11 @@
+.scrollable {
+  display: flex;
+  flex-direction: column;
+
+  .scrollable-content {
+    overflow-x: auto;
+    overflow-y: auto;
+    min-height: 0px;
+    flex-grow: 1;
+  }
+}

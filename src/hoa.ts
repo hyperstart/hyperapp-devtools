@@ -33,11 +33,12 @@ export function hoa<State, Actions>(app: App): App<State, Actions> {
     devtools.view,
     div
   )
-  const runId = guid()
 
   return function(state: any, actions: any, view, element) {
+    const runId = guid()
     actions = enhanceActions(devtoolsApp.logAction, runId, actions)
     actions.$__SET_STATE = state => state
+    devtoolsApp.logInit({ runId, state, timestamp: new Date().getTime() })
     return app(state, actions, view, element)
   }
 }

@@ -1,13 +1,12 @@
-export interface AppState {
-    state: any;
-    actionData?: any;
-    actionResult?: any;
-    previousState?: any;
-}
 export interface AppAction {
     name: string;
-    states: AppState[];
+    done: boolean;
+    nestedActions: AppAction[];
+    previousState: any | null;
     collapsed: boolean;
+    nextState?: any;
+    actionData?: any;
+    actionResult?: any;
 }
 export interface Run {
     id: string;
@@ -23,9 +22,8 @@ export interface InitEvent {
     timestamp: number;
     state: any;
 }
-export declare type EventType = "call-start" | "call-done";
 export interface ActionEvent {
-    type: EventType;
+    callDone: boolean;
     runId: string;
     action: string;
     data: any;
@@ -39,7 +37,7 @@ export interface State {
     runs: Runs;
     logs: RuntimeEvent[];
     paneShown: boolean;
-    selectedState: AppState | null;
+    selectedAction: AppAction | null;
     collapseRepeatingActions: boolean;
     showFullState: boolean;
 }
@@ -51,7 +49,7 @@ export interface Actions {
     log(event: RuntimeEvent): any;
     logInit(event: InitEvent): any;
     logAction(event: ActionEvent): any;
-    select(state: AppState | null): any;
+    select(state: AppAction | null): any;
     showPane(shown: boolean): any;
     toggleRun(run: string): any;
     toggleAction(payload: ToggleActionPayload): any;
