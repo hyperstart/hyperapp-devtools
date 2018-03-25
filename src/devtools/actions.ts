@@ -161,6 +161,9 @@ export const actions: ActionsType<api.State, api.Actions> = {
   showPane: (paneShown: boolean) => {
     return { paneShown }
   },
+  setPaneDisplay: (paneDisplay: api.PaneDisplay) => {
+    return { paneDisplay }
+  },
   toggleCollapseRepeatingActions: () => state => {
     return { collapseRepeatingActions: !state.collapseRepeatingActions }
   },

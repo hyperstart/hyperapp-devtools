@@ -23,7 +23,8 @@
     "build:module": "rollup -c --es && rimraf .rpt2_cache"
   },
   "dependencies": {
-    "hyperapp": "^1.2.5"
+    "hyperapp": "^1.2.5",
+    "spectre.css": "^0.5.1"
   },
   "devDependencies": {
     "cpx": "^1.5.0",

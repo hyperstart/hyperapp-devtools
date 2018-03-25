@@ -1,23 +1,27 @@
 import { h } from "hyperapp"
 
-import { State, Actions } from "./api"
+import { State, Actions, PaneDisplay } from "./api"
 
 import { DebugPane } from "./DebugPane"
 import { TogglePaneButton } from "./TogglePaneButton"
 
-const style = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  height: "100vh",
-  width: "100vw",
-  "z-index": 10
+import "./view.scss"
+
+function getClassName(display: PaneDisplay): string {
+  switch (display) {
+    case "fullscreen":
+      return "devtools-overlay"
+    case "right":
+      return "devtools-overlay align-right"
+    case "bottom":
+      return "devtools-overlay align-bottom"
+  }
 }
 
 export function view(state: State, actions: Actions) {
   if (state.paneShown) {
     return (
-      <div style={style}>
+      <div class={getClassName(state.paneDisplay)}>
         {DebugPane({ state, actions })}
         {TogglePaneButton({ state, actions })}
       </div>

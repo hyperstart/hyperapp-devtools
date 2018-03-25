@@ -1,20 +1,22 @@
 .debug-pane {
   display: flex;
   flex-direction: column;
-  width: 96%;
-  height: 96%;
-  background: #f1f1f1;
+  width: 100%;
+  height: 100%;
+  background: #fefefe;
   border: 1px solid black;
   color: black;
-  position: fixed;
-  left: 2%;
-  top: 2%;
 
   .debug-toolbar {
+    display: flex;
+    justify-content: space-between;
+    flex-shrink: 0;
     width: 100%;
-    height: 1.3rem;
-    padding-top: 0.15rem;
     border-bottom: 1px solid black;
+
+    .close-button {
+      margin: 0.3rem;
+    }
   }
 
   .debug-content {
