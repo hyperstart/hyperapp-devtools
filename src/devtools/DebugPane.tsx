@@ -10,7 +10,7 @@ interface ToolbarProps {
 }
 
 function Toolbar(props: ToolbarProps) {
-  return <div class="debug-toolbar">toolbar</div>
+  return <div class="debug-toolbar">&nbsp;Devtools</div>
 }
 
 export interface DebugPaneProps {

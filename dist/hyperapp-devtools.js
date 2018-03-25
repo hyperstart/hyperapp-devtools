@@ -287,11 +287,11 @@ function styleInject(css, ref) {
   }
 }
 
-var css = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 96%;\n  height: 96%;\n  background: #f1f1f1;\n  border: 1px solid black;\n  color: black;\n  position: fixed;\n  left: 2%;\n  top: 2%; }\n  .debug-pane .debug-toolbar {\n    width: 100%;\n    height: 1.3rem;\n    padding-top: 0.15rem;\n    padding-left: 0.15rem;\n    border-bottom: 1px solid black; }\n  .debug-pane .debug-content {\n    flex-grow: 1; }\n    .debug-pane .debug-content pre {\n      margin: 0rem; }\n";
+var css = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 96%;\n  height: 96%;\n  background: #f1f1f1;\n  border: 1px solid black;\n  color: black;\n  position: fixed;\n  left: 2%;\n  top: 2%; }\n  .debug-pane .debug-toolbar {\n    width: 100%;\n    height: 1.3rem;\n    padding-top: 0.15rem;\n    border-bottom: 1px solid black; }\n  .debug-pane .debug-content {\n    flex-grow: 1; }\n    .debug-pane .debug-content pre {\n      margin: 0rem; }\n";
 styleInject(css);
 
 function Toolbar(props) {
-    return h("div", { class: "debug-toolbar" }, "toolbar");
+    return h("div", { class: "debug-toolbar" }, "\u00A0Devtools");
 }
 function DebugPane(props) {
     var state = props.state, actions = props.actions;
@@ -300,23 +300,13 @@ function DebugPane(props) {
         h("div", { class: "debug-content scrollable" },
             h("pre", { class: "scrollable-content" }, JSON.stringify(state, null, 2)))));
 }
-//# sourceMappingURL=DebugPane.js.map
 
-var style$1 = {
-    position: "fixed",
-    right: "2%",
-    bottom: "2%",
-    "border-radius": "0px",
-    border: "1px solid black",
-    color: "black",
-    background: "white",
-    margin: "0.2rem",
-    outline: "none",
-    "font-size": "2rem"
-};
+var css$2 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%;\n  border-radius: 0px;\n  border: 1px solid black;\n  color: black;\n  background: white;\n  margin: 0.2rem;\n  outline: none;\n  font-size: 2rem; }\n  .toggle-pane-button:hover {\n    background: #efefef; }\n  .toggle-pane-button:active {\n    background: #dddddd; }\n";
+styleInject(css$2);
+
 function TogglePaneButton(props) {
     var state = props.state, actions = props.actions;
-    return (h("button", { style: style$1, onclick: function () { return actions.showPane(!state.paneShown); } }, "Devtools"));
+    return (h("button", { class: "toggle-pane-button", onclick: function () { return actions.showPane(!state.paneShown); } }, "Devtools"));
 }
 //# sourceMappingURL=TogglePaneButton.js.map
 
@@ -338,8 +328,8 @@ function view(state, actions) {
 }
 //# sourceMappingURL=view.js.map
 
-var css$2 = ".scrollable {\n  display: flex;\n  flex-direction: column; }\n  .scrollable .scrollable-content {\n    overflow-x: auto;\n    overflow-y: auto;\n    min-height: 0px;\n    flex-grow: 1; }\n";
-styleInject(css$2);
+var css$4 = ".scrollable {\n  display: flex;\n  flex-direction: column; }\n  .scrollable .scrollable-content {\n    overflow-x: auto;\n    overflow-y: auto;\n    min-height: 0px;\n    flex-grow: 1; }\n";
+styleInject(css$4);
 
 //# sourceMappingURL=index.js.map
 
