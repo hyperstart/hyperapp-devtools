@@ -2,6 +2,8 @@ import { h } from "hyperapp"
 
 import { State, Actions, PaneDisplay } from "../api"
 
+import { DebuggerOptions } from "./DebuggerOptions"
+
 import "./DebugPane.scss"
 
 interface ToolbarProps {
@@ -72,6 +74,7 @@ export function DebugPane(props: DebugPaneProps) {
   return (
     <div class="debug-pane">
       {Toolbar({ state, actions })}
+      {DebuggerOptions({ state, actions })}
       <div class="debug-content scrollable">
         <pre class="scrollable-content">{JSON.stringify(state, null, 2)}</pre>
       </div>

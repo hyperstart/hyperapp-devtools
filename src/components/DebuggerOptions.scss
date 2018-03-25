@@ -1,0 +1,14 @@
+.debugger-options {
+  display: flex;
+  flex-shrink: 0;
+
+  select {
+    -webkit-appearance: none;
+  }
+
+  .option {
+    flex-grow: 1;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}

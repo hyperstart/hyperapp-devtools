@@ -42,6 +42,8 @@ export interface RuntimeEvent {
 
 export type PaneDisplay = "fullscreen" | "right" | "bottom"
 
+export type ValueDisplay = "state" | "result" | "data"
+
 export interface State {
   runs: Runs
   logs: RuntimeEvent[]
@@ -49,7 +51,7 @@ export interface State {
   paneDisplay: PaneDisplay
   selectedAction: AppAction | null
   collapseRepeatingActions: boolean
-  showFullState: boolean
+  valueDisplay: ValueDisplay
 }
 
 // # Actions
@@ -66,9 +68,9 @@ export interface Actions {
   select(state: AppAction | null)
   showPane(shown: boolean)
   setPaneDisplay(paneDisplay: PaneDisplay)
+  setValueDisplay(valueDisplay: ValueDisplay)
   toggleRun(run: string)
   toggleAction(payload: ToggleActionPayload)
   toggleCollapseRepeatingActions()
-  toggleShowFullState()
   deleteRun(id: string)
 }

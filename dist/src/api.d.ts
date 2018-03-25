@@ -34,6 +34,7 @@ export interface RuntimeEvent {
     level: "info" | "warn" | "error";
 }
 export declare type PaneDisplay = "fullscreen" | "right" | "bottom";
+export declare type ValueDisplay = "state" | "result" | "data";
 export interface State {
     runs: Runs;
     logs: RuntimeEvent[];
@@ -41,7 +42,7 @@ export interface State {
     paneDisplay: PaneDisplay;
     selectedAction: AppAction | null;
     collapseRepeatingActions: boolean;
-    showFullState: boolean;
+    valueDisplay: ValueDisplay;
 }
 export interface ToggleActionPayload {
     run: string;
@@ -54,9 +55,9 @@ export interface Actions {
     select(state: AppAction | null): any;
     showPane(shown: boolean): any;
     setPaneDisplay(paneDisplay: PaneDisplay): any;
+    setValueDisplay(valueDisplay: ValueDisplay): any;
     toggleRun(run: string): any;
     toggleAction(payload: ToggleActionPayload): any;
     toggleCollapseRepeatingActions(): any;
-    toggleShowFullState(): any;
     deleteRun(id: string): any;
 }

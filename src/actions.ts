@@ -152,11 +152,11 @@ export const actions: ActionsType<api.State, api.Actions> = {
   setPaneDisplay: (paneDisplay: api.PaneDisplay) => {
     return { paneDisplay }
   },
+  setValueDisplay: (valueDisplay: api.ValueDisplay) => {
+    return { valueDisplay }
+  },
   toggleCollapseRepeatingActions: () => state => {
     return { collapseRepeatingActions: !state.collapseRepeatingActions }
-  },
-  toggleShowFullState: () => state => {
-    return { showFullState: !state.showFullState }
   },
   deleteRun: (id: string) => state => {
     const runs = { ...state.runs }
