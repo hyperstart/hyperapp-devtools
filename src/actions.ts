@@ -1,5 +1,5 @@
 import { ActionsType } from "hyperapp"
-import { get, merge, set } from "../immutable"
+import { get, merge, set } from "./immutable"
 
 import * as api from "./api"
 
@@ -11,18 +11,6 @@ function mergeResult(state: any, event: api.ActionEvent): any {
   }
   return state
 }
-
-// function createAction(
-//   state: api.AppState,
-//   collapsed: boolean,
-//   existing: Partial<api.AppAction> = {}
-// ): api.AppAction {
-//   return {
-//     name: existing.name || "Initial State",
-//     states: (existing.states || []).concat([state]),
-//     collapsed
-//   }
-// }
 
 /**
  * Recursively goes down the tree of actions and append the given event to the last non-done action.

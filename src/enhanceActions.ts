@@ -1,4 +1,4 @@
-import { Actions, ActionEvent } from "./devtools"
+import { Actions, ActionEvent } from "./api"
 
 export interface OnAction {
   (call: ActionEvent): void

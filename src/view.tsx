@@ -1,9 +1,7 @@
 import { h } from "hyperapp"
 
 import { State, Actions, PaneDisplay } from "./api"
-
-import { DebugPane } from "./DebugPane"
-import { TogglePaneButton } from "./TogglePaneButton"
+import { DebugPane, TogglePaneButton } from "./components"
 
 import "./view.scss"
 

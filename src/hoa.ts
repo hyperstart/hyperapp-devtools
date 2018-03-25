@@ -1,6 +1,9 @@
 import { h, ActionsType, View } from "hyperapp"
 
-import * as devtools from "./devtools"
+import { Actions } from "./api"
+import { state } from "./state"
+import { actions } from "./actions"
+import { view } from "./view"
 import enhanceActions from "./enhanceActions"
 
 const ALPHABET =
@@ -13,26 +16,21 @@ export const guid = () =>
     .map(rand)
     .join("")
 
-export interface App<State = any, Actions = any> {
+export interface App<AppState = any, AppActions = any> {
   (
-    state: State,
-    actions: ActionsType<State, Actions>,
-    view: View<State, Actions>,
+    state: AppState,
+    actions: ActionsType<AppState, AppActions>,
+    view: View<AppState, AppActions>,
     container: Element | null
-  ): Actions
+  ): AppActions
 }
 
-export function hoa<State, Actions>(app: App): App<State, Actions> {
+export function hoa<AppState, AppActions>(app: App): App<AppState, AppActions> {
   const div = document.createElement("div")
   div.id = "hyperapp-devtools"
   document.body.appendChild(div)
 
-  const devtoolsApp: devtools.Actions = app(
-    devtools.state,
-    devtools.actions,
-    devtools.view,
-    div
-  )
+  const devtoolsApp: Actions = app(state, actions, view, div)
 
   return function(state: any, actions: any, view, element) {
     const runId = guid()

@@ -1,4 +1,4 @@
-import { State, Actions } from "./api";
+import { State, Actions } from "../api";
 import "./DebugPane.scss";
 export interface DebugPaneProps {
     state: State;

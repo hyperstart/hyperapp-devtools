@@ -1,6 +1,6 @@
 import { h } from "hyperapp"
 
-import { State, Actions } from "./api"
+import { State, Actions } from "../api"
 
 import "./TogglePaneButton.scss"
 

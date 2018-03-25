@@ -1,6 +1,6 @@
 import { h } from "hyperapp"
 
-import { State, Actions, PaneDisplay } from "./api"
+import { State, Actions, PaneDisplay } from "../api"
 
 import "./DebugPane.scss"
 
