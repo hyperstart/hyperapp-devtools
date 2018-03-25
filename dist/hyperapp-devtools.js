@@ -13,7 +13,6 @@ var state = {
     selectedAction: null,
     collapseRepeatingActions: true
 };
-//# sourceMappingURL=state.js.map
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -82,7 +81,6 @@ function assign(target, obj, obj2) {
     }
     return target;
 }
-//# sourceMappingURL=immutable.js.map
 
 function mergeResult(state, event) {
     if (event && event.result) {
@@ -223,7 +221,6 @@ var actions = {
         return { runs: runs };
     }; }
 };
-//# sourceMappingURL=actions.js.map
 
 function h(name, attributes) {
   var rest = [];
@@ -300,22 +297,13 @@ function DebuggerOptions(props) {
                 h("option", { value: "result" }, "Show Action Result"),
                 h("option", { value: "data" }, "Show Action Data")))));
 }
-/* <label class="form-checkbox">
-<input
-  type="checkbox"
-  checked={state.showFullState}
-  onchange={actions.toggleShowFullState}
-/>
-<i class="form-icon" /> Show full state
-</label> */
-//# sourceMappingURL=DebuggerOptions.js.map
 
-var css$4 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #fefefe;\n  border: 1px solid black;\n  color: black; }\n  .debug-pane .debug-toolbar {\n    display: flex;\n    justify-content: space-between;\n    flex-shrink: 0;\n    width: 100%;\n    border-bottom: 1px solid black; }\n    .debug-pane .debug-toolbar .close-button {\n      margin: 0.4rem; }\n  .debug-pane .debug-content {\n    flex-grow: 1; }\n    .debug-pane .debug-content pre {\n      margin: 0rem; }\n";
+var css$4 = ".debug-pane-toolbar {\n  display: flex;\n  justify-content: space-between;\n  flex-shrink: 0;\n  width: 100%;\n  border-bottom: 1px solid black; }\n  .debug-pane-toolbar .close-button {\n    margin: 0.4rem; }\n";
 styleInject(css$4);
 
-function Toolbar(props) {
+function DebugPaneToolbar(props) {
     var state = props.state, actions = props.actions;
-    return (h("div", { class: "debug-toolbar" },
+    return (h("div", { class: "debug-pane-toolbar" },
         h("div", { class: "dropdown" },
             h("button", { class: "btn btn-link dropdown-toggle" }, "View"),
             h("ul", { class: "menu" },
@@ -337,29 +325,29 @@ function Toolbar(props) {
         h("span", { class: "float-right" },
             h("button", { class: "btn btn-clear close-button", onclick: function () { return actions.showPane(false); } }))));
 }
+
+var css$6 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #fefefe;\n  border: 1px solid black;\n  color: black; }\n  .debug-pane .debug-content {\n    flex-grow: 1; }\n    .debug-pane .debug-content pre {\n      margin: 0rem; }\n";
+styleInject(css$6);
+
 function DebugPane(props) {
     var state = props.state, actions = props.actions;
     return (h("div", { class: "debug-pane" },
-        Toolbar({ state: state, actions: actions }),
+        DebugPaneToolbar({ state: state, actions: actions }),
         DebuggerOptions({ state: state, actions: actions }),
         h("div", { class: "debug-content scrollable" },
             h("pre", { class: "scrollable-content" }, JSON.stringify(state, null, 2)))));
 }
-//# sourceMappingURL=DebugPane.js.map
 
-var css$6 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n  .toggle-pane-button:hover {\n    background: #efefef; }\n  .toggle-pane-button:active {\n    background: #dddddd; }\n";
-styleInject(css$6);
+var css$8 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n  .toggle-pane-button:hover {\n    background: #efefef; }\n  .toggle-pane-button:active {\n    background: #dddddd; }\n";
+styleInject(css$8);
 
 function TogglePaneButton(props) {
     var state = props.state, actions = props.actions;
     return (h("button", { class: "btn toggle-pane-button", onclick: function () { return actions.showPane(!state.paneShown); } }, "Devtools"));
 }
-//# sourceMappingURL=TogglePaneButton.js.map
 
-//# sourceMappingURL=index.js.map
-
-var css$8 = ".devtools-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100vh;\n  width: 100vw;\n  z-index: 10; }\n  .devtools-overlay.align-right {\n    width: 50vw;\n    left: 50vw; }\n  .devtools-overlay.align-bottom {\n    height: 50vh;\n    top: 50vh; }\n";
-styleInject(css$8);
+var css$10 = ".devtools-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100vh;\n  width: 100vw;\n  z-index: 10; }\n  .devtools-overlay.align-right {\n    width: 50vw;\n    left: 50vw; }\n  .devtools-overlay.align-bottom {\n    height: 50vh;\n    top: 50vh; }\n";
+styleInject(css$10);
 
 function getClassName(display) {
     switch (display) {
@@ -379,7 +367,6 @@ function view(state, actions) {
     }
     return TogglePaneButton({ state: state, actions: actions });
 }
-//# sourceMappingURL=view.js.map
 
 function enhanceActions(onAction, runId, actions, prefix) {
     var namespace = prefix ? prefix + "." : "";
@@ -414,8 +401,6 @@ function enhanceActions(onAction, runId, actions, prefix) {
     }, {});
 }
 
-//# sourceMappingURL=enhanceActions.js.map
-
 var ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 var SIZE = 16;
 var rand = function () { return ALPHABET[Math.floor(Math.random() * ALPHABET.length)]; };
@@ -437,10 +422,6 @@ function hoa$1(app) {
         return app(state$$1, actions$$1, view$$1, element);
     };
 }
-
-//# sourceMappingURL=hoa.js.map
-
-//# sourceMappingURL=index.js.map
 
 return hoa$1;
 
