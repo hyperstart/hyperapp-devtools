@@ -5,9 +5,10 @@ const nodeResolve = require("rollup-plugin-node-resolve")
 const typescript = require("rollup-plugin-typescript2")
 const uglify = require("rollup-plugin-uglify")
 const postcss = require("rollup-plugin-postcss")
+const serve = require("rollup-plugin-serve")
 
 const options = minimist(process.argv.slice(2), {
-  boolean: ["min", "es"]
+  boolean: ["min", "es", "serve"]
 })
 
 const plugins = [
@@ -26,6 +27,14 @@ const plugins = [
 ]
 if (options.min) {
   plugins.push(uglify())
+}
+if (options.serve) {
+  plugins.push(
+    serve({
+      open: true,
+      contentBase: "examples"
+    })
+  )
 }
 
 export default {
