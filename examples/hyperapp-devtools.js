@@ -326,28 +326,84 @@ function DebugPaneToolbar(props) {
             h("button", { class: "btn btn-clear close-button", onclick: function () { return actions.showPane(false); } }))));
 }
 
-var css$6 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #fefefe;\n  border: 1px solid black;\n  color: black; }\n  .debug-pane .debug-content {\n    flex-grow: 1; }\n    .debug-pane .debug-content pre {\n      margin: 0rem; }\n";
+var css$6 = "";
 styleInject(css$6);
+
+var css$8 = ".object-details-pane {\n  flex-grow: 1; }\n  .object-details-pane pre {\n    margin: 0rem; }\n";
+styleInject(css$8);
+
+function ObjectDetailsPane(props) {
+    var state = props.state;
+    return (h("div", { class: "object-details-pane scrollable" },
+        h("pre", { class: "scrollable-content" }, JSON.stringify(state, null, 2))));
+}
+
+var css$10 = "";
+styleInject(css$10);
+
+var css$12 = "";
+styleInject(css$12);
+
+function RunsPaneItem(props) {
+    var state = props.state, actions = props.actions, run = props.run;
+    return h("li", null,
+        "Run ",
+        run.timestamp);
+}
+
+function RunsPane(props) {
+    var state = props.state, actions = props.actions, runs = props.runs;
+    var items = [];
+    var lastId = runs.length - 1;
+    runs.forEach(function (run, i) {
+        items.unshift(RunsPaneItem({ state: state, actions: actions, run: run, current: i === lastId }));
+    });
+    return (h("div", { class: "scrollable" },
+        h("ul", { class: "scrollable-content" }, runs)));
+}
+
+function DebugPaneContent(props) {
+    var state = props.state, actions = props.actions, runs = props.runs;
+    if (runs.length === 0) {
+        return (h("div", { class: "debug-pane-content" },
+            h("p", null, "No debug information found, please debug this project.")));
+    }
+    return (h("div", { class: "debug-pane-content" },
+        RunsPane({ state: state, actions: actions, runs: runs }),
+        ObjectDetailsPane({ state: state, actions: actions })));
+}
+
+var css$14 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #fefefe;\n  border: 1px solid black;\n  color: black; }\n";
+styleInject(css$14);
+
+function compareRuns(r1, r2) {
+    return r1.timestamp - r2.timestamp;
+}
+function getRuns(state) {
+    return Object.keys(state.runs)
+        .map(function (key) { return state.runs[key]; })
+        .sort(compareRuns);
+}
 
 function DebugPane(props) {
     var state = props.state, actions = props.actions;
+    var runs = getRuns(state);
     return (h("div", { class: "debug-pane" },
         DebugPaneToolbar({ state: state, actions: actions }),
         DebuggerOptions({ state: state, actions: actions }),
-        h("div", { class: "debug-content scrollable" },
-            h("pre", { class: "scrollable-content" }, JSON.stringify(state, null, 2)))));
+        DebugPaneContent({ state: state, actions: actions, runs: runs })));
 }
 
-var css$8 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n  .toggle-pane-button:hover {\n    background: #efefef; }\n  .toggle-pane-button:active {\n    background: #dddddd; }\n";
-styleInject(css$8);
+var css$16 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n  .toggle-pane-button:hover {\n    background: #efefef; }\n  .toggle-pane-button:active {\n    background: #dddddd; }\n";
+styleInject(css$16);
 
 function TogglePaneButton(props) {
     var state = props.state, actions = props.actions;
     return (h("button", { class: "btn toggle-pane-button", onclick: function () { return actions.showPane(!state.paneShown); } }, "Devtools"));
 }
 
-var css$10 = ".devtools-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100vh;\n  width: 100vw;\n  z-index: 10; }\n  .devtools-overlay.align-right {\n    width: 50vw;\n    left: 50vw; }\n  .devtools-overlay.align-bottom {\n    height: 50vh;\n    top: 50vh; }\n";
-styleInject(css$10);
+var css$18 = ".devtools-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100vh;\n  width: 100vw;\n  z-index: 10; }\n  .devtools-overlay.align-right {\n    width: 50vw;\n    left: 50vw; }\n  .devtools-overlay.align-bottom {\n    height: 50vh;\n    top: 50vh; }\n";
+styleInject(css$18);
 
 function getClassName(display) {
     switch (display) {

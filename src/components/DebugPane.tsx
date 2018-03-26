@@ -4,8 +4,10 @@ import { State, Actions, PaneDisplay } from "../api"
 
 import { DebuggerOptions } from "./DebuggerOptions"
 import { DebugPaneToolbar } from "./DebugPaneToolbar"
+import { DebugPaneContent } from "./DebugPaneContent"
 
 import "./DebugPane.scss"
+import { getRuns } from "../selectors"
 
 export interface DebugPaneProps {
   state: State
@@ -15,13 +17,12 @@ export interface DebugPaneProps {
 export function DebugPane(props: DebugPaneProps) {
   const { state, actions } = props
 
+  const runs = getRuns(state)
   return (
     <div class="debug-pane">
       {DebugPaneToolbar({ state, actions })}
       {DebuggerOptions({ state, actions })}
-      <div class="debug-content scrollable">
-        <pre class="scrollable-content">{JSON.stringify(state, null, 2)}</pre>
-      </div>
+      {DebugPaneContent({ state, actions, runs })}
     </div>
   )
 }
