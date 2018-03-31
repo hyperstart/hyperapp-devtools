@@ -34,7 +34,7 @@ export interface RuntimeEvent {
     level: "info" | "warn" | "error";
 }
 export declare type PaneDisplay = "fullscreen" | "right" | "bottom";
-export declare type ValueDisplay = "state" | "result" | "data";
+export declare type ValueDisplay = "state" | "result" | "data" | "debugger-state";
 export interface State {
     runs: Runs;
     logs: RuntimeEvent[];
@@ -52,7 +52,7 @@ export interface Actions {
     log(event: RuntimeEvent): any;
     logInit(event: InitEvent): any;
     logAction(event: ActionEvent): any;
-    select(state: AppAction | null): any;
+    select(action: AppAction | null): any;
     showPane(shown: boolean): any;
     setPaneDisplay(paneDisplay: PaneDisplay): any;
     setValueDisplay(valueDisplay: ValueDisplay): any;

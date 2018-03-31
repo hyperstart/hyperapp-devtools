@@ -25,15 +25,17 @@
     }
 
     const actions = {
-      down: value => state => ({ count: state.count - value }),
-      up: value => state => ({ count: state.count + value })
+      // let's have a nested action here, for the sake of the example
+      add: value => state => ({ count: state.count + value }),
+      down: () => (_, actions) => actions.add(-1),
+      up: () => (_, actions) => actions.add(1),
     }
 
     function view(state, actions) {
       return h("div", { style: { margin: "2rem" } },
         h("h1", { style: { margin: "0.5rem" } }, state.count),
-        h("button", { onclick: () => actions.down(1) }, "-"),
-        h("button", { onclick: () => actions.up(1) }, "+"),
+        h("button", { onclick: actions.down }, "-"),
+        h("button", { onclick: actions.up }, "+"),
       )
     }
 

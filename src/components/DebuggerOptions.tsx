@@ -33,6 +33,7 @@ export function DebuggerOptions(props: DebuggerOptionsProps) {
           <option value="state">Show Full State</option>
           <option value="result">Show Action Result</option>
           <option value="data">Show Action Data</option>
+          <option value="debugger-state">Show Debugger Own State</option>
         </select>
       </div>
     </div>

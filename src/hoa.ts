@@ -16,6 +16,14 @@ export const guid = () =>
     .map(rand)
     .join("")
 
+// const faScript = document.createElement("script")
+// faScript.defer = true
+// faScript.src = "https://use.fontawesome.com/releases/v5.0.8/js/all.js"
+// faScript.integrity =
+//   "sha384-SlE991lGASHoBfWbelyBPLsUlwY1GwNDJo3jSJO04KZ33K2bwfV9YBauFfnzvynJ"
+// faScript.crossOrigin = "anonymous"
+// document.head.appendChild(faScript)
+
 export interface App<AppState = any, AppActions = any> {
   (
     state: AppState,

@@ -15,6 +15,9 @@ export interface Run {
   id: string
   timestamp: number
   actions: AppAction[]
+  // // used internally when loging actions
+  // // each number is the
+  // currentActionPath: number[]
   collapsed: boolean
 }
 
@@ -42,7 +45,7 @@ export interface RuntimeEvent {
 
 export type PaneDisplay = "fullscreen" | "right" | "bottom"
 
-export type ValueDisplay = "state" | "result" | "data"
+export type ValueDisplay = "state" | "result" | "data" | "debugger-state"
 
 export interface State {
   runs: Runs
@@ -65,7 +68,7 @@ export interface Actions {
   log(event: RuntimeEvent)
   logInit(event: InitEvent)
   logAction(event: ActionEvent)
-  select(state: AppAction | null)
+  select(action: AppAction | null)
   showPane(shown: boolean)
   setPaneDisplay(paneDisplay: PaneDisplay)
   setValueDisplay(valueDisplay: ValueDisplay)

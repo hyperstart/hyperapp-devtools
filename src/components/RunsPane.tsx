@@ -19,8 +19,8 @@ export function RunsPane(props: RunsPaneProps) {
     items.unshift(RunsPaneItem({ state, actions, run, current: i === lastId }))
   })
   return (
-    <div class="scrollable">
-      <ul class="scrollable-content">{runs}</ul>
+    <div class="runs-pane scrollable">
+      <ul class="runs-pane-runs scrollable-content">{items}</ul>
     </div>
   )
 }

@@ -12,20 +12,28 @@ function mergeResult(state: any, event: api.ActionEvent): any {
   return state
 }
 
+function isCurrentAction(action: api.AppAction): boolean {
+  if (action.done) {
+    return false
+  }
+
+  const length = action.nestedActions.length
+  return length === 0 || action.nestedActions[length - 1].done
+}
+
 /**
  * Recursively goes down the tree of actions and append the given event to the last non-done action.
- *
  */
-function appendAction(
-  previousAction: api.AppAction,
+function appendActionEvent(
+  action: api.AppAction,
   event: api.ActionEvent
 ): api.AppAction {
-  if (previousAction.done) {
-    return previousAction
+  if (action.done) {
+    return action
   }
 
   // no nested action yet
-  if (previousAction.nestedActions.length === 0) {
+  if (isCurrentAction(action)) {
     if (!event.callDone) {
       // the action calls to a nested action
       const nestedAction: api.AppAction = {
@@ -34,41 +42,37 @@ function appendAction(
         collapsed: false,
         actionData: event.data,
         nestedActions: [],
-        previousState: previousAction.previousState
+        previousState: action.previousState
       }
 
       return {
-        ...previousAction,
+        ...action,
         nestedActions: [nestedAction]
       }
-    } else if (previousAction.name === event.action) {
+    } else if (action.name === event.action) {
       // the previous call is now complete: set to done and compute the result
       return {
-        ...previousAction,
+        ...action,
         done: true,
         actionResult: event.result,
-        nextState: mergeResult(previousAction.previousState, event)
+        nextState: mergeResult(action.previousState, event)
       }
     } else {
       // error case
-      console.log(
-        "Previous action is done and event.callDone",
-        previousAction,
-        event
-      )
+      console.log("Previous action is done and event.callDone", action, event)
       // TODO what to return?!
-      return previousAction
+      return action
     }
   } else {
     // there are already some nested actions: call recursivelly
-    const nested = previousAction.nestedActions
+    const nested = action.nestedActions
     const nestedAction = nested[nested.length - 1]
-    const newNestedAction = appendAction(nestedAction, event)
+    const newNestedAction = appendActionEvent(nestedAction, event)
     if (nestedAction === newNestedAction) {
-      return previousAction
+      return action
     }
     return {
-      ...previousAction,
+      ...action,
       nestedActions: nested.slice(0, nested.length - 1).concat(newNestedAction)
     }
   }
@@ -125,7 +129,7 @@ export const actions: ActionsType<api.State, api.Actions> = {
       }
     } else {
       // previous action not done: find parent action, create and append
-      selectedAction = appendAction(prevAction, event)
+      selectedAction = appendActionEvent(prevAction, event)
       actions.push(selectedAction)
     }
 

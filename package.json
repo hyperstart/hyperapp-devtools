@@ -12,9 +12,9 @@
   "typings": "dist/src/index.d.ts",
   "scripts": {
     "clean": "rimraf dist .rpt2_cache",
-    "start": "rollup -c -w --serve | cpx dist/hyperapp-devtools.js examples -w",
+    "start": "rollup -c -w --serve",
     "build":
-      "npm run clean && npm run build:module && npm run build:main && npm run build:min && cpx dist/hyperapp-devtools.js examples",
+      "npm run clean && npm run build:module && npm run build:main && npm run build:min",
     "build:main": "rollup -c && rimraf .rpt2_cache",
     "build:min": "rollup -c --min && rimraf .rpt2_cache",
     "build:module": "rollup -c --es && rimraf .rpt2_cache"

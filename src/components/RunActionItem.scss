@@ -1,0 +1,12 @@
+@import "node_modules/spectre.css/src/spectre";
+
+.run-action-item-count {
+  color: orange;
+}
+
+.run-action-item {
+  width: 100%;
+  &:hover {
+    background-color: $secondary-color;
+  }
+}

@@ -32,7 +32,7 @@ if (options.serve) {
   plugins.push(
     serve({
       open: true,
-      contentBase: "examples"
+      contentBase: ["examples", "dist"]
     })
   )
 }
