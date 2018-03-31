@@ -1,6 +1,6 @@
 {
   "name": "hyperapp-devtools",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Developer tools for Hyperapp projects",
   "keywords": ["hyperapp", "devtools", "debug"],
   "author": "Anthony Ferrando <ferrando.tony@gmail.com>",
@@ -17,7 +17,9 @@
       "npm run clean && npm run build:module && npm run build:main && npm run build:min",
     "build:main": "rollup -c && rimraf .rpt2_cache",
     "build:min": "rollup -c --min && rimraf .rpt2_cache",
-    "build:module": "rollup -c --es && rimraf .rpt2_cache"
+    "build:module": "rollup -c --es && rimraf .rpt2_cache",
+    "release":
+      "npm run build && git commit -am $npm_package_version && git tag $npm_package_version && git push && git push --tags && npm publish"
   },
   "dependencies": {
     "hyperapp": "^1.2.5",
