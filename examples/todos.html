@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Counter example with debugger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://unpkg.com/hyperapp"></script>
+  <script src="hyperapp-devtools.js"></script>
+
+  <style>
+    main {
+      width: 40%;
+      margin-left: 3rem;
+      font-size: 1rem;
+    }
+
+    .input {
+      width: 100%;
+    }
+
+    button {
+      border-radius: 0px;
+      border: 1px solid black;
+      font-size: 1rem;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.4rem 0rem;
+    }
+
+    .item span {
+      flex-grow: 1;
+      cursor: pointer;
+    }
+
+    .done {
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" />
+  <br />
+  <br />
+  <a href="index.html">&nbsp;Back to index</a>
+
+  <script>
+    const h = hyperapp.h
+
+    const state = {
+      todos: [],
+      input: ""
+    }
+
+    const actions = {
+      add: name => state => ({ todos: state.todos.concat({ name }), input: "" }),
+      toggle: id => state => ({
+        todos: state.todos.map(
+          (t, i) => (i === id ? { name: t.name, done: !t.done } : t)
+        )
+      }),
+      remove: id => state => ({ todos: state.todos.filter((t, i) => i !== id) }),
+      input: input => () => ({ input })
+    }
+
+    const Todo = ({ item, id, actions }) => (
+      h("div", { class: item.done ? "item done" : "item" },
+        h("span", { onclick: () => actions.toggle(id) }, item.name),
+        h("button", { onclick: () => actions.remove(id) }, "x")
+      )
+    )
+
+    const view = (state, actions) => (
+      h("main", {},
+        h("h1", {}, "Todo list"),
+        h("input", {
+          type: "text",
+          class: "input",
+          value: state.input,
+          onkeyup: e => (e.keyCode === 13 ? actions.add(state.input) : ""),
+          oninput: e => actions.input(e.target.value),
+          placeholder: "Enter item..."
+        }),
+        state.todos.map((item, id) => Todo({ item, id, actions }))
+      )
+    )
+
+    devtools(hyperapp.app)(state, actions, view, document.getElementById("app"))
+
+  </script>
+
+</body>
+
+</html>
