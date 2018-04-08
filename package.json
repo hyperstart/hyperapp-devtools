@@ -1,6 +1,6 @@
 {
   "name": "hyperapp-devtools",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Developer tools for Hyperapp projects",
   "keywords": ["hyperapp", "devtools", "debug"],
   "author": "Anthony Ferrando <ferrando.tony@gmail.com>",
