@@ -1,4 +1,4 @@
-import { h, ActionsType } from "hyperapp"
+import { h } from "hyperapp"
 
 import { Actions } from "./api"
 import { state } from "./state"
@@ -18,27 +18,22 @@ export const guid = () =>
 
 // rewrite the view more permissive than HA to allow for multiple VNode implementation
 // e.g. the one in HA 1.1.2 and the on in HA 1.2.5
-export interface View<AppState = any, AppActions = any> {
-  (state: AppState, actions: AppActions): any
+export interface View {
+  (state: any, actions: any): any
 }
 
-export interface App<AppState = any, AppActions = any> {
-  (
-    state: AppState,
-    actions: ActionsType<AppState, AppActions>,
-    view: View<AppState, AppActions>,
-    container: Element | null
-  ): AppActions
+export interface HypperApp {
+  (state: any, actions: any, view: View, container: Element | null): any
 }
 
-export function hoa<AppState, AppActions>(app: App): App<AppState, AppActions> {
+export function hoa<App extends HypperApp>(app: App): App {
   const div = document.createElement("div")
   div.id = "hyperapp-devtools"
   document.body.appendChild(div)
 
   const devtoolsApp: Actions = app(state, actions, view, div)
 
-  return function(state: any, actions: any, view, element) {
+  return <App>function(state: any, actions: any, view, element) {
     const runId = guid()
     actions = enhanceActions(devtoolsApp.logAction, runId, actions)
     actions.$__SET_STATE = state => state

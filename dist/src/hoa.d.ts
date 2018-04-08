@@ -1,10 +1,9 @@
-import { ActionsType } from "hyperapp";
 export declare const guid: () => any;
-export interface View<AppState = any, AppActions = any> {
-    (state: AppState, actions: AppActions): any;
+export interface View {
+    (state: any, actions: any): any;
 }
-export interface App<AppState = any, AppActions = any> {
-    (state: AppState, actions: ActionsType<AppState, AppActions>, view: View<AppState, AppActions>, container: Element | null): AppActions;
+export interface HypperApp {
+    (state: any, actions: any, view: View, container: Element | null): any;
 }
-export declare function hoa<AppState, AppActions>(app: App): App<AppState, AppActions>;
+export declare function hoa<App extends HypperApp>(app: App): App;
 export default hoa;
