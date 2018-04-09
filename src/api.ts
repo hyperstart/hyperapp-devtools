@@ -3,7 +3,7 @@
 export interface AppAction {
   name: string
   done: boolean
-  nestedActions: AppAction[]
+  actions: AppAction[]
   previousState: any | null
   collapsed: boolean
   nextState?: any
@@ -15,9 +15,6 @@ export interface Run {
   id: string
   timestamp: number
   actions: AppAction[]
-  // // used internally when loging actions
-  // // each number is the
-  // currentActionPath: number[]
   collapsed: boolean
 }
 
@@ -61,7 +58,7 @@ export interface State {
 
 export interface ToggleActionPayload {
   run: string
-  actionId: number
+  path: number[]
 }
 
 export interface Actions {

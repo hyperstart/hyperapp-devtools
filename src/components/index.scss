@@ -1,4 +1,18 @@
 @import "node_modules/spectre.css/src/spectre";
+@import "node_modules/spectre.css/src/spectre-icons";
+
+// Icon caret right
+span.icon-caret-right {
+  &::before {
+    border-top: 0.3em solid currentColor;
+    border-right: 0.3em solid transparent;
+    border-left: 0.3em solid transparent;
+    content: "";
+    height: 0;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    width: 0;
+  }
+}
 
 .scrollable {
   display: flex;

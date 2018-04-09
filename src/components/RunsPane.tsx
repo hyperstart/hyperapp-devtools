@@ -16,7 +16,9 @@ export function RunsPane(props: RunsPaneProps) {
   const items = []
   const lastId = runs.length - 1
   runs.forEach((run, i) => {
-    items.unshift(RunsPaneItem({ state, actions, run, current: i === lastId }))
+    items.unshift(
+      RunsPaneItem({ state, actions, run, current: i === lastId, path: [] })
+    )
   })
   return (
     <div class="runs-pane scrollable">

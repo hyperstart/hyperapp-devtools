@@ -1,7 +1,7 @@
 export interface AppAction {
     name: string;
     done: boolean;
-    nestedActions: AppAction[];
+    actions: AppAction[];
     previousState: any | null;
     collapsed: boolean;
     nextState?: any;
@@ -46,7 +46,7 @@ export interface State {
 }
 export interface ToggleActionPayload {
     run: string;
-    actionId: number;
+    path: number[];
 }
 export interface Actions {
     log(event: RuntimeEvent): any;

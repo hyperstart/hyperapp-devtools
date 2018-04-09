@@ -1,17 +1,26 @@
-@import "node_modules/spectre.css/src/spectre";
+@import "./index.scss";
 
 .run-action-item-count {
   color: orange;
 }
 
 .run-action-item {
-  display: block;
+  margin: 0rem;
+  width: 100%;
 
-  &:hover {
-    background-color: $secondary-color;
-  }
+  .item-link {
+    display: block;
+    color: black;
 
-  &.selected {
-    background-color: $secondary-color-dark;
+    &:hover {
+      background-color: $secondary-color;
+      color: black;
+    }
+
+    &.selected {
+      background-color: $secondary-color-dark;
+      font-weight: bold;
+      color: black;
+    }
   }
 }

@@ -1,10 +1,12 @@
 import "./RunActionItem.scss";
-import { State, Actions, AppAction } from "../api";
+import { State, Actions, AppAction, Run } from "../api";
 export interface RunActionItemProps {
     state: State;
     actions: Actions;
-    array: AppAction[];
-    index: number;
+    run: Run;
+    actionList: AppAction[];
+    indexInList: number;
     action: AppAction;
+    path: number[];
 }
 export declare function RunActionItem(props: RunActionItemProps): any;

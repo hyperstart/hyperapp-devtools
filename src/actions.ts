@@ -17,8 +17,8 @@ function isCurrentAction(action: api.AppAction): boolean {
     return false
   }
 
-  const length = action.nestedActions.length
-  return length === 0 || action.nestedActions[length - 1].done
+  const length = action.actions.length
+  return length === 0 || action.actions[length - 1].done
 }
 
 /**
@@ -41,13 +41,13 @@ function appendActionEvent(
         done: false,
         collapsed: false,
         actionData: event.data,
-        nestedActions: [],
+        actions: [],
         previousState: action.previousState
       }
 
       return {
         ...action,
-        nestedActions: action.nestedActions.concat(nestedAction)
+        actions: action.actions.concat(nestedAction)
       }
     } else if (action.name === event.action) {
       // the previous call is now complete: set to done and compute the result
@@ -65,7 +65,7 @@ function appendActionEvent(
     }
   } else {
     // there are already some nested actions: call recursivelly
-    const nested = action.nestedActions
+    const nested = action.actions
     const nestedAction = nested[nested.length - 1]
     const newNestedAction = appendActionEvent(nestedAction, event)
     if (nestedAction === newNestedAction) {
@@ -73,10 +73,32 @@ function appendActionEvent(
     }
     return {
       ...action,
-      nestedActions: nested.slice(0, nested.length - 1).concat(newNestedAction)
+      actions: nested.slice(0, nested.length - 1).concat(newNestedAction)
     }
   }
 }
+
+function toggleAction(
+  runs: api.Runs,
+  runId: string,
+  actionPath: number[]
+): api.Runs {
+  const path: any[] = [runId]
+  actionPath.forEach(index => {
+    path.push("actions", index)
+  })
+  path.push("collapsed")
+
+  const collapsed = get(runs, path)
+  if (typeof collapsed !== "boolean") {
+    console.log("WARN: try to collapse invalid action, path: ", actionPath)
+    return runs
+  }
+
+  return set(runs, path, !collapsed)
+}
+
+export const INITIAL_ACTION = "%%% INITIAL STATE %%%"
 
 export const actions: ActionsType<api.State, api.Actions> = {
   log: (event: api.RuntimeEvent) => state => {
@@ -86,10 +108,10 @@ export const actions: ActionsType<api.State, api.Actions> = {
     const runs = { ...state.runs }
 
     const action: api.AppAction = {
-      name: "Initial State",
+      name: INITIAL_ACTION,
       done: true,
       collapsed: false,
-      nestedActions: [],
+      actions: [],
       previousState: null,
       nextState: event.state
     }
@@ -116,7 +138,7 @@ export const actions: ActionsType<api.State, api.Actions> = {
         selectedAction = {
           done: false,
           collapsed: false,
-          nestedActions: [],
+          actions: [],
           name: event.action,
           actionData: event.data,
           previousState: prevAction.nextState
@@ -141,10 +163,8 @@ export const actions: ActionsType<api.State, api.Actions> = {
     return { runs }
   },
   toggleAction: (payload: api.ToggleActionPayload) => state => {
-    const { run, actionId } = payload
-    const path = [run, "actions", actionId, "collapsed"]
-    const collapsed = get(state.runs, path)
-    const runs = set(state.runs, path, !collapsed)
+    const { run, path } = payload
+    const runs = toggleAction(state.runs, run, path)
     return { runs }
   },
   select: (selectedAction: api.AppAction | null) => {

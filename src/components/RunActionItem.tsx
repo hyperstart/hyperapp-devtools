@@ -3,6 +3,9 @@ import { h } from "hyperapp"
 import "./RunActionItem.scss"
 
 import { State, Actions, AppAction, Run } from "../api"
+import { INITIAL_ACTION } from "../actions"
+
+import { RunActionItemList } from "./RunActionItemList"
 
 // # Helpers
 
@@ -15,10 +18,10 @@ function getRepeatText(array: AppAction[], index: number): string {
       result++
       i--
     } else {
-      return "(x" + result + ")"
+      return result === 1 ? "" : " (x" + result + ")"
     }
   }
-  return "(x" + result + ")"
+  return result === 1 ? "" : " (x" + result + ")"
 }
 
 function getActionDataText(action: AppAction): string {
@@ -37,33 +40,68 @@ function getActionDataText(action: AppAction): string {
   }
 }
 
-// # Nested Actions Component
+// # ToggleActionItem
 
-interface RunActionNestedActionsProps {
-  state: State
+interface ToggleActionItemProps {
   actions: Actions
+  run: Run
   action: AppAction
+  path: number[]
 }
 
-function RunActionNestedActions(props: RunActionNestedActionsProps) {
-  const { state, actions, action } = props
-  if (action.collapsed || action.nestedActions.length === 0) {
-    return null
+function ToggleActionItem(props: ToggleActionItemProps) {
+  const { action, run, actions, path } = props
+
+  if (action.actions.length === 0) {
+    return <span class="icon" />
   }
+
+  const onclick = () => actions.toggleAction({ run: run.id, path })
+
+  if (action.collapsed) {
+    return <span class="icon icon-caret-right" onclick={onclick} />
+  }
+
+  return <span class="icon icon-caret" onclick={onclick} />
+}
+
+// # ActionItemLink
+
+interface ActionItemLinkProps {
+  state: State
+  actions: Actions
+  run: Run
+  actionList: AppAction[]
+  indexInList: number
+  action: AppAction
+  path: number[]
+}
+
+function ActionItemLink(props: ActionItemLinkProps) {
+  const { state, actions, actionList, indexInList, action } = props
+
+  const selected = state.selectedAction === action
+  const className = "item-link" + (selected ? " selected" : "")
+
+  const onclick = (e: Event) => {
+    e.preventDefault()
+    actions.select(action)
+  }
+
+  const displayName =
+    action.name === INITIAL_ACTION
+      ? "Initial State"
+      : `${action.name}(${getActionDataText(action)})`
   return (
-    <ul class="run-action-item-nested-actions">
-      {action.nestedActions
-        .map((a, index) => {
-          return RunActionItem({
-            state,
-            actions,
-            array: action.nestedActions,
-            action: a,
-            index
-          })
-        })
-        .reverse()}
-    </ul>
+    <a href="" class={className} onclick={onclick}>
+      {ToggleActionItem(props)}
+      {displayName}
+      {state.collapseRepeatingActions && (
+        <span class="run-action-item-count">
+          {getRepeatText(actionList, indexInList)}
+        </span>
+      )}
+    </a>
   )
 }
 
@@ -72,15 +110,17 @@ function RunActionNestedActions(props: RunActionNestedActionsProps) {
 export interface RunActionItemProps {
   state: State
   actions: Actions
-  array: AppAction[]
-  index: number
+  run: Run
+  actionList: AppAction[]
+  indexInList: number
   action: AppAction
+  path: number[]
 }
 
 export function RunActionItem(props: RunActionItemProps) {
-  const { state, actions, array, index, action } = props
+  const { state, actions, run, actionList, indexInList, action, path } = props
 
-  const nextAction = array[index + 1]
+  const nextAction = actionList[indexInList + 1]
   if (
     nextAction &&
     nextAction.name === action.name &&
@@ -89,26 +129,17 @@ export function RunActionItem(props: RunActionItemProps) {
     return null
   }
 
-  const onclick = (e: Event) => {
-    e.preventDefault()
-    actions.select(action)
-  }
-
-  const selected = state.selectedAction === action
-  console.log(state.selectedAction, "   ", action, selected)
-  const className = "run-action-item" + (selected ? " selected" : "")
-
   return (
-    <li key={index}>
-      <a href="" class={className} onclick={onclick}>
-        {action.name}({getActionDataText(action)}){" "}
-        {state.collapseRepeatingActions && (
-          <span class="run-action-item-count">
-            {getRepeatText(array, index)}
-          </span>
-        )}
-      </a>
-      {RunActionNestedActions({ state, actions, action })}
+    <li class="run-action-item" key={indexInList}>
+      {ActionItemLink(props)}
+      {RunActionItemList({
+        state,
+        actions,
+        run,
+        actionList: action.actions,
+        path,
+        collapsed: action.collapsed
+      })}
     </li>
   )
 }
