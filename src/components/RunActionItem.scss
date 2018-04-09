@@ -5,8 +5,13 @@
 }
 
 .run-action-item {
-  width: 100%;
+  display: block;
+
   &:hover {
     background-color: $secondary-color;
+  }
+
+  &.selected {
+    background-color: $secondary-color-dark;
   }
 }

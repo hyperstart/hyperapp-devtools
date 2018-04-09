@@ -2,6 +2,7 @@
   flex: 0 0 40%;
   border: 1px solid #666666;
   margin: 0.1rem;
+  align-items: stretch;
 
   ul {
     list-style-type: none;
@@ -9,6 +10,7 @@
 
     li {
       margin: 0rem;
+      width: 100%;
     }
   }
 }

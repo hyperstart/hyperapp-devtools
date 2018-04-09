@@ -94,9 +94,13 @@ export function RunActionItem(props: RunActionItemProps) {
     actions.select(action)
   }
 
+  const selected = state.selectedAction === action
+  console.log(state.selectedAction, "   ", action, selected)
+  const className = "run-action-item" + (selected ? " selected" : "")
+
   return (
     <li key={index}>
-      <a href="" class="run-action-item" onclick={onclick}>
+      <a href="" class={className} onclick={onclick}>
         {action.name}({getActionDataText(action)}){" "}
         {state.collapseRepeatingActions && (
           <span class="run-action-item-count">
