@@ -2,12 +2,12 @@
 
 .scrollable {
   display: flex;
-  flex-direction: column;
+  overflow: auto;
 
   .scrollable-content {
-    overflow-x: auto;
-    overflow-y: auto;
+    display: flex;
     min-height: 0px;
+    min-width: 0px;
     flex-grow: 1;
   }
 }
