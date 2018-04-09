@@ -47,7 +47,7 @@ function appendActionEvent(
 
       return {
         ...action,
-        nestedActions: [nestedAction]
+        nestedActions: action.nestedActions.concat(nestedAction)
       }
     } else if (action.name === event.action) {
       // the previous call is now complete: set to done and compute the result
