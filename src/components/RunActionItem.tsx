@@ -56,7 +56,10 @@ function ToggleActionItem(props: ToggleActionItemProps) {
     return <span class="icon" />
   }
 
-  const onclick = () => actions.toggleAction({ run: run.id, path })
+  const onclick = (e: Event) => {
+    event.preventDefault()
+    actions.toggleAction({ run: run.id, path })
+  }
 
   if (action.collapsed) {
     return <span class="icon icon-caret-right" onclick={onclick} />

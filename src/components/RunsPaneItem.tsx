@@ -20,7 +20,7 @@ export function RunsPaneItem(props: RunsPaneItemProps) {
 
   return (
     <li class="run-pane-item" key={run.timestamp}>
-      Run - {date}
+      <h6>Run - {date}</h6>
       {RunActionItemList({
         state,
         actions,
