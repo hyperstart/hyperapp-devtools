@@ -4,13 +4,23 @@ import { getPath } from "./selectors"
 
 import * as api from "./api"
 
-function mergeResult(state: any, event: api.ActionEvent): any {
-  if (event && event.result) {
-    const action = event.action.split(".")
-    action.pop()
-    return merge(state, action, event.result)
+function getPreviousState(action: api.AppAction): any {
+  if(action.actions.length > 0) {
+    const child = action.actions[action.actions.length - 1]
+    return child.done ? child.nextState : child.previousState
   }
-  return state
+
+  return action.previousState
+}
+
+function mergeResult(action: api.AppAction, event: api.ActionEvent): any {
+  if (event && event.result) {
+    const path = event.action.split(".")
+    path.pop()
+    return merge(getPreviousState(action), path, event.result)
+  }
+
+  return getPreviousState(action)
 }
 
 function isCurrentAction(action: api.AppAction): boolean {
@@ -56,7 +66,7 @@ function appendActionEvent(
         ...action,
         done: true,
         actionResult: event.result,
-        nextState: mergeResult(action.previousState, event)
+        nextState: mergeResult(action, event)
       }
     } else {
       // error case

@@ -118,13 +118,20 @@ function isSelectedAction(state, run, path) {
     return path.every(function (val, i) { return val === a.path[i]; });
 }
 
-function mergeResult(state, event) {
-    if (event && event.result) {
-        var action = event.action.split(".");
-        action.pop();
-        return merge(state, action, event.result);
+function getPreviousState(action) {
+    if (action.actions.length > 0) {
+        var child = action.actions[action.actions.length - 1];
+        return child.done ? child.nextState : child.previousState;
     }
-    return state;
+    return action.previousState;
+}
+function mergeResult(action, event) {
+    if (event && event.result) {
+        var path = event.action.split(".");
+        path.pop();
+        return merge(getPreviousState(action), path, event.result);
+    }
+    return getPreviousState(action);
 }
 function isCurrentAction(action) {
     if (action.done) {
@@ -156,7 +163,7 @@ function appendActionEvent(action, event) {
         }
         else if (action.name === event.action) {
             // the previous call is now complete: set to done and compute the result
-            return __assign({}, action, { done: true, actionResult: event.result, nextState: mergeResult(action.previousState, event) });
+            return __assign({}, action, { done: true, actionResult: event.result, nextState: mergeResult(action, event) });
         }
         else {
             // error case
