@@ -17,7 +17,7 @@ export function RunsPane(props: RunsPaneProps) {
   const lastId = runs.length - 1
   runs.forEach((run, i) => {
     items.unshift(
-      RunsPaneItem({ state, actions, run, current: i === lastId, path: [] })
+      RunsPaneItem({ state, actions, run, current: i === lastId })
     )
   })
   return (

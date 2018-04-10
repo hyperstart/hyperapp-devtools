@@ -5,6 +5,5 @@ export interface RunsPaneItemProps {
     actions: Actions;
     run: Run;
     current: boolean;
-    path: any[];
 }
 export declare function RunsPaneItem(props: RunsPaneItemProps): JSX.Element;

@@ -14,7 +14,12 @@
 
     &:hover {
       background-color: $secondary-color;
+      text-decoration: none;
       color: black;
+    }
+
+    &:focus {
+      text-decoration: none;
     }
 
     &.selected {
@@ -22,5 +27,9 @@
       font-weight: bold;
       color: black;
     }
+  }
+
+  .icon:hover {
+    color: $primary-color;
   }
 }

@@ -44,12 +44,17 @@ export type PaneDisplay = "fullscreen" | "right" | "bottom"
 
 export type ValueDisplay = "state" | "result" | "data" | "debugger-state"
 
+export interface SelectedAction {
+  run: string
+  path: number[]
+}
+
 export interface State {
   runs: Runs
   logs: RuntimeEvent[]
   paneShown: boolean
   paneDisplay: PaneDisplay
-  selectedAction: AppAction | null
+  selectedAction: SelectedAction | null
   collapseRepeatingActions: boolean
   valueDisplay: ValueDisplay
 }
@@ -65,7 +70,7 @@ export interface Actions {
   log(event: RuntimeEvent)
   logInit(event: InitEvent)
   logAction(event: ActionEvent)
-  select(action: AppAction | null)
+  select(action: SelectedAction | null)
   showPane(shown: boolean)
   setPaneDisplay(paneDisplay: PaneDisplay)
   setValueDisplay(valueDisplay: ValueDisplay)

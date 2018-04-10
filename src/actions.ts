@@ -1,5 +1,6 @@
 import { ActionsType } from "hyperapp"
 import { get, merge, set } from "./immutable"
+import { getPath } from "./selectors"
 
 import * as api from "./api"
 
@@ -79,23 +80,22 @@ function appendActionEvent(
 }
 
 function toggleAction(
-  runs: api.Runs,
-  runId: string,
+  state: api.State,
+  run: string,
   actionPath: number[]
-): api.Runs {
-  const path: any[] = [runId]
-  actionPath.forEach(index => {
-    path.push("actions", index)
-  })
-  path.push("collapsed")
+): Partial<api.State> {
+  const path = getPath(run, actionPath)
 
-  const collapsed = get(runs, path)
-  if (typeof collapsed !== "boolean") {
+  const existingAction = get(state.runs, path)
+  if (typeof existingAction !== "object") {
     console.log("WARN: try to collapse invalid action, path: ", actionPath)
-    return runs
+    return state
   }
 
-  return set(runs, path, !collapsed)
+  const collapsed = !existingAction.collapsed
+  const action = { ...existingAction, collapsed }
+  const runs: api.Runs = set(state.runs, path, action)
+  return { runs }
 }
 
 export const INITIAL_ACTION = "%%% INITIAL STATE %%%"
@@ -123,7 +123,7 @@ export const actions: ActionsType<api.State, api.Actions> = {
       collapsed: false
     }
 
-    return { runs, selectedAction: action }
+    return { runs, selectedAction: { run: event.runId, path: [0] } }
   },
   logAction: (event: api.ActionEvent) => state => {
     const runs = { ...state.runs }
@@ -131,11 +131,10 @@ export const actions: ActionsType<api.State, api.Actions> = {
     const actions = [...run.actions]
     run.actions = actions
     const prevAction = actions.pop()
-    let selectedAction: api.AppAction
     if (prevAction.done) {
       // previous action done: create new action and append
       if (!event.callDone) {
-        selectedAction = {
+        const action = {
           done: false,
           collapsed: false,
           actions: [],
@@ -144,15 +143,20 @@ export const actions: ActionsType<api.State, api.Actions> = {
           previousState: prevAction.nextState
         }
 
-        actions.push(prevAction, selectedAction)
+        actions.push(prevAction, action)
       } else {
         // error!, should we log it here?
         console.log("Previous action is done and event.callDone", state, event)
       }
     } else {
       // previous action not done: find parent action, create and append
-      selectedAction = appendActionEvent(prevAction, event)
-      actions.push(selectedAction)
+      const action = appendActionEvent(prevAction, event)
+      actions.push(action)
+    }
+
+    const selectedAction = {
+      run: event.runId,
+      path: [actions.length - 1]
     }
 
     return { runs, selectedAction }
@@ -164,10 +168,9 @@ export const actions: ActionsType<api.State, api.Actions> = {
   },
   toggleAction: (payload: api.ToggleActionPayload) => state => {
     const { run, path } = payload
-    const runs = toggleAction(state.runs, run, path)
-    return { runs }
+    return toggleAction(state, run, path)
   },
-  select: (selectedAction: api.AppAction | null) => {
+  select: (selectedAction: api.SelectedAction | null) => {
     return { selectedAction }
   },
   showPane: (paneShown: boolean) => {

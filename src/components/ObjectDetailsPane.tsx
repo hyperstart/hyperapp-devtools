@@ -2,51 +2,53 @@ import { h } from "hyperapp"
 
 import "./ObjectDetailsPane.scss"
 
-import { State, Actions, Run } from "../api"
+import { State, Actions, Run, AppAction } from "../api"
+import { getSelectedAction } from "../selectors";
 
-export interface ObjectDetailsPaneProps {
+interface PaneProps {
   state: State
   actions: Actions
+  action: AppAction
 }
 
-function PaneData(props: ObjectDetailsPaneProps) {
-  const { state, actions } = props
+function PaneData(props: PaneProps) {
+  const { action } = props
 
   return (
     <div class="object-details-pane scrollable">
       <pre class="scrollable-content">
-        {JSON.stringify(state.selectedAction.actionData, null, 2)}
+        {JSON.stringify(action.actionData, null, 2)}
       </pre>
     </div>
   )
 }
 
-function PaneResult(props: ObjectDetailsPaneProps) {
-  const { state, actions } = props
+function PaneResult(props: PaneProps) {
+  const { action } = props
 
   return (
     <div class="object-details-pane scrollable">
       <pre class="scrollable-content">
-        {JSON.stringify(state.selectedAction.actionResult, null, 2)}
+        {JSON.stringify(action.actionResult, null, 2)}
       </pre>
     </div>
   )
 }
 
-function PaneState(props: ObjectDetailsPaneProps) {
-  const { state, actions } = props
+function PaneState(props: PaneProps) {
+  const { action } = props
 
   return (
     <div class="object-details-pane scrollable">
       <pre class="scrollable-content">
-        {JSON.stringify(state.selectedAction.nextState, null, 2)}
+        {JSON.stringify(action.nextState, null, 2)}
       </pre>
     </div>
   )
 }
 
-function PaneDebuggerState(props: ObjectDetailsPaneProps) {
-  const { state, actions } = props
+function PaneDebuggerState(props: PaneProps) {
+  const { state } = props
 
   return (
     <div class="object-details-pane scrollable">
@@ -55,15 +57,22 @@ function PaneDebuggerState(props: ObjectDetailsPaneProps) {
   )
 }
 
+export interface ObjectDetailsPaneProps {
+  state: State
+  actions: Actions
+}
+
 export function ObjectDetailsPane(props: ObjectDetailsPaneProps) {
+  const { state, actions } = props
+  const action = getSelectedAction(props.state)
   switch (props.state.valueDisplay) {
     case "data":
-      return PaneData(props)
+      return PaneData({ state, actions, action })
     case "result":
-      return PaneResult(props)
+      return PaneResult({ state, actions, action })
     case "state":
-      return PaneState(props)
+      return PaneState({ state, actions, action })
     case "debugger-state":
-      return PaneDebuggerState(props)
+      return PaneDebuggerState({ state, actions, action })
   }
 }

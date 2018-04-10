@@ -6,6 +6,7 @@ import { State, Actions, AppAction, Run } from "../api"
 import { INITIAL_ACTION } from "../actions"
 
 import { RunActionItemList } from "./RunActionItemList"
+import { isSelectedAction } from "../selectors";
 
 // # Helpers
 
@@ -57,6 +58,7 @@ function ToggleActionItem(props: ToggleActionItemProps) {
   }
 
   const onclick = (e: Event) => {
+    event.stopPropagation()
     event.preventDefault()
     actions.toggleAction({ run: run.id, path })
   }
@@ -81,14 +83,14 @@ interface ActionItemLinkProps {
 }
 
 function ActionItemLink(props: ActionItemLinkProps) {
-  const { state, actions, actionList, indexInList, action } = props
+  const { state, actions, run, actionList, indexInList, action, path } = props
 
-  const selected = state.selectedAction === action
+  const selected = isSelectedAction(state, run.id, path)
   const className = "item-link" + (selected ? " selected" : "")
 
   const onclick = (e: Event) => {
     e.preventDefault()
-    actions.select(action)
+    actions.select({ run: run.id, path })
   }
 
   const displayName =

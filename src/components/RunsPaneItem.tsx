@@ -10,11 +10,10 @@ export interface RunsPaneItemProps {
   actions: Actions
   run: Run
   current: boolean
-  path: any[]
 }
 
 export function RunsPaneItem(props: RunsPaneItemProps) {
-  const { state, actions, run, current, path } = props
+  const { state, actions, run, current } = props
   const date = new Date(run.timestamp).toLocaleTimeString()
   const collapsed = run.collapsed
 
