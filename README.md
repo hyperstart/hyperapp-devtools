@@ -14,7 +14,7 @@ See it in action here:
 Install it from npm:
 
 ```
-npm install hyperapp-debug --save-dev
+npm install hyperapp-devtools --save-dev
 ```
 
 Or get it directly from unpkg:
