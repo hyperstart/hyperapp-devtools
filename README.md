@@ -7,7 +7,7 @@ This is an higher order application (HOA) that records every action and allow th
 
 See it in action here:
 
-![debugger in action](https://user-images.githubusercontent.com/8634093/38488545-1bfc0a60-3be4-11e8-9566-b0a4920c6c1d.gif)
+![debugger in action](https://user-images.githubusercontent.com/8634093/39005997-fa787024-4401-11e8-9699-3c22618e554a.gif)
 
 ## Installation
 
