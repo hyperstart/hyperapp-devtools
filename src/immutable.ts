@@ -1,13 +1,12 @@
 /**
  * Path: Array<string | number>
  */
-export type Path = Array<string | number> | string
+export type Path = Array<string | number>
 
 /**
  * Get the value at the given path in the given target, or undefined if path doesn't exists.
  */
 export function get<T = any, R = any>(target: T, path: Path): R {
-  path = typeof path === "string" ? path.split(".") : path
   let result: any = target
   for (var i = 0; i < path.length; i++) {
     result = result ? result[path[i]] : result
@@ -24,7 +23,6 @@ export function set<T = any, V = any, R = any>(
   path: Path,
   value: V
 ): R {
-  path = typeof path === "string" ? path.split(".") : path
   if (path.length === 0) {
     return (value as any) as R
   }

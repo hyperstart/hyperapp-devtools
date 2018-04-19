@@ -1,7 +1,7 @@
 /**
  * Path: Array<string | number>
  */
-export declare type Path = Array<string | number> | string;
+export declare type Path = Array<string | number>;
 /**
  * Get the value at the given path in the given target, or undefined if path doesn't exists.
  */

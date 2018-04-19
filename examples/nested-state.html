@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Counter example with debugger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://unpkg.com/hyperapp"></script>
+    <script src="hyperapp-devtools.js"></script>
+</head>
+
+<body>
+    <div id="app" />
+    <br />
+    <br />
+    <a href="index.html">&nbsp;Back to index</a>
+
+    <script>
+        const h = hyperapp.h
+
+        // basic building blocks
+        const toggleState = { value: true }
+        const toggle = () => state => ({ value: !state.value })
+
+        const state = {
+            slice1: {
+                slice1: toggleState,
+                slice2: toggleState,
+                value: true
+            },
+            slice2: {
+                slice1: toggleState,
+                slice2: toggleState,
+                value: true
+            },
+            value: true
+        }
+
+        const actions = {
+            slice1: {
+                slice1: { toggle },
+                slice2: { toggle },
+                toggle,
+            },
+            slice2: {
+                slice1: { toggle },
+                slice2: { toggle },
+                toggle,
+            },
+            toggle,
+        }
+
+        function sliceView(s, a, prefix) {
+            return h("span", {},
+                h("span", { onclick: () => a.toggle() }, prefix + s.value + "\n"),
+                s.slice1 && sliceView(s.slice1, a.slice1, prefix + "  "),
+                s.slice2 && sliceView(s.slice2, a.slice2, prefix + "  "),
+            )
+        }
+
+        function view(state, actions) {
+            return h("pre", { style: { margin: "2rem" } },
+                sliceView(state, actions, "")
+            )
+        }
+
+        devtools(hyperapp.app)(state, actions, view, document.getElementById("app"))
+
+    </script>
+
+</body>
+
+</html>

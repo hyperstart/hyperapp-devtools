@@ -1,5 +1,9 @@
 // # State
 
+export interface StringMap<Value = any> {
+  [key: string]: Value
+}
+
 export interface AppAction {
   name: string
   done: boolean
@@ -9,6 +13,7 @@ export interface AppAction {
   nextState?: any
   actionData?: any
   actionResult?: any
+  stateCollapses: StringMap<boolean>
 }
 
 export interface Run {
@@ -66,10 +71,18 @@ export interface ToggleActionPayload {
   path: number[]
 }
 
+export interface CollapseAppActionPayload {
+  run: string
+  actionPath: number[]
+  appActionPath: string
+  collapsed: boolean
+}
+
 export interface Actions {
   log(event: RuntimeEvent)
   logInit(event: InitEvent)
   logAction(event: ActionEvent)
+  collapseAppAction(payload: CollapseAppActionPayload)
   select(action: SelectedAction | null)
   showPane(shown: boolean)
   setPaneDisplay(paneDisplay: PaneDisplay)

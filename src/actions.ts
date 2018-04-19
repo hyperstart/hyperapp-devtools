@@ -5,7 +5,7 @@ import { getPath } from "./selectors"
 import * as api from "./api"
 
 function getPreviousState(action: api.AppAction): any {
-  if(action.actions.length > 0) {
+  if (action.actions.length > 0) {
     const child = action.actions[action.actions.length - 1]
     return child.done ? child.nextState : child.previousState
   }
@@ -53,7 +53,8 @@ function appendActionEvent(
         collapsed: false,
         actionData: event.data,
         actions: [],
-        previousState: action.previousState
+        previousState: action.previousState,
+        stateCollapses: {}
       }
 
       return {
@@ -123,7 +124,8 @@ export const actions: ActionsType<api.State, api.Actions> = {
       collapsed: false,
       actions: [],
       previousState: null,
-      nextState: event.state
+      nextState: event.state,
+      stateCollapses: {}
     }
 
     runs[event.runId] = {
@@ -150,7 +152,8 @@ export const actions: ActionsType<api.State, api.Actions> = {
           actions: [],
           name: event.action,
           actionData: event.data,
-          previousState: prevAction.nextState
+          previousState: prevAction.nextState,
+          stateCollapses: {}
         }
 
         actions.push(prevAction, action)
@@ -182,6 +185,15 @@ export const actions: ActionsType<api.State, api.Actions> = {
   },
   select: (selectedAction: api.SelectedAction | null) => {
     return { selectedAction }
+  },
+  collapseAppAction: (payload: api.CollapseAppActionPayload) => state => {
+    const { run, actionPath, appActionPath, collapsed } = payload
+
+    const path = getPath(run, actionPath)
+    path.push("stateCollapses", appActionPath)
+
+    const runs: api.Runs = set(state.runs, path, collapsed)
+    return { runs }
   },
   showPane: (paneShown: boolean) => {
     return { paneShown }

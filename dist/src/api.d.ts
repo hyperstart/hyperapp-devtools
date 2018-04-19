@@ -1,3 +1,6 @@
+export interface StringMap<Value = any> {
+    [key: string]: Value;
+}
 export interface AppAction {
     name: string;
     done: boolean;
@@ -7,6 +10,7 @@ export interface AppAction {
     nextState?: any;
     actionData?: any;
     actionResult?: any;
+    stateCollapses: StringMap<boolean>;
 }
 export interface Run {
     id: string;
@@ -52,10 +56,17 @@ export interface ToggleActionPayload {
     run: string;
     path: number[];
 }
+export interface CollapseAppActionPayload {
+    run: string;
+    actionPath: number[];
+    appActionPath: string;
+    collapsed: boolean;
+}
 export interface Actions {
     log(event: RuntimeEvent): any;
     logInit(event: InitEvent): any;
     logAction(event: ActionEvent): any;
+    collapseAppAction(payload: CollapseAppActionPayload): any;
     select(action: SelectedAction | null): any;
     showPane(shown: boolean): any;
     setPaneDisplay(paneDisplay: PaneDisplay): any;

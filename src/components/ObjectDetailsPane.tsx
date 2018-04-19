@@ -2,8 +2,10 @@ import { h } from "hyperapp"
 
 import "./ObjectDetailsPane.scss"
 
+import { ObjectView } from "./ObjectView"
+
 import { State, Actions, Run, AppAction } from "../api"
-import { getSelectedAction } from "../selectors";
+import { getSelectedAction } from "../selectors"
 
 interface PaneProps {
   state: State
@@ -11,50 +13,43 @@ interface PaneProps {
   action: AppAction
 }
 
-function PaneData(props: PaneProps) {
-  const { action } = props
+function Pane(props: PaneProps, value: any) {
+  const { state, actions, action } = props
+
+  function expanded(path: string, expanded?: boolean) {
+    if (typeof expanded === "boolean") {
+      actions.collapseAppAction({
+        actionPath: state.selectedAction.path,
+        run: state.selectedAction.run,
+        appActionPath: path,
+        collapsed: !expanded
+      })
+    }
+
+    return !action.stateCollapses[path]
+  }
 
   return (
     <div class="object-details-pane scrollable">
-      <pre class="scrollable-content">
-        {JSON.stringify(action.actionData, null, 2)}
-      </pre>
+      {ObjectView({ value, expanded })}
     </div>
   )
+}
+
+function PaneData(props: PaneProps) {
+  return Pane(props, props.action.actionData)
 }
 
 function PaneResult(props: PaneProps) {
-  const { action } = props
-
-  return (
-    <div class="object-details-pane scrollable">
-      <pre class="scrollable-content">
-        {JSON.stringify(action.actionResult, null, 2)}
-      </pre>
-    </div>
-  )
+  return Pane(props, props.action.actionResult)
 }
 
 function PaneState(props: PaneProps) {
-  const { action } = props
-
-  return (
-    <div class="object-details-pane scrollable">
-      <pre class="scrollable-content">
-        {JSON.stringify(action.nextState, null, 2)}
-      </pre>
-    </div>
-  )
+  return Pane(props, props.action.nextState)
 }
 
 function PaneDebuggerState(props: PaneProps) {
-  const { state } = props
-
-  return (
-    <div class="object-details-pane scrollable">
-      <pre class="scrollable-content">{JSON.stringify(state, null, 2)}</pre>
-    </div>
-  )
+  return Pane(props, props.state)
 }
 
 export interface ObjectDetailsPaneProps {
