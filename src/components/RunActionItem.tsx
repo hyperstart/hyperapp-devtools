@@ -6,7 +6,7 @@ import { State, Actions, AppAction, Run } from "../api"
 import { INITIAL_ACTION } from "../actions"
 
 import { RunActionItemList } from "./RunActionItemList"
-import { isSelectedAction } from "../selectors";
+import { isSelectedAction } from "../selectors"
 
 // # Helpers
 
@@ -31,10 +31,10 @@ function getActionDataText(action: AppAction): string {
   }
   try {
     const result = JSON.stringify(action.actionData)
-    if (result.length > 20) {
+    if (result && result.length > 20) {
       return result.substr(0, 17) + "..."
     }
-    return result
+    return result || ""
   } catch (e) {
     console.log(e)
     return "error"
