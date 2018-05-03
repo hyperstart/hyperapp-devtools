@@ -35,9 +35,9 @@ export function hoa<App extends HypperApp>(app: App): App {
 
   return <App>function(state: any, actions: any, view, element) {
     const runId = guid()
-    actions = enhanceActions(devtoolsApp.logAction, runId, actions)
 
-    actions[injectedSetState] = state => state
+    actions[injectedSetState] = function timeTravel(state) { return state; };
+    actions = enhanceActions(devtoolsApp.logAction, runId, actions)
 
     const interop: any = app(state, actions, view, element)
 

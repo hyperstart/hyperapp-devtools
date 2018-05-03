@@ -12,7 +12,8 @@ export function enhanceActions(
 ): any {
   var namespace = prefix ? prefix + "." : ""
   return Object.keys(actions || {}).reduce(function(otherActions, name) {
-    var namedspacedName = namespace + name
+    var fnName = actions[name].name || name;
+    var namedspacedName = namespace + fnName
     var action = actions[name]
     otherActions[name] =
       typeof action === "function"
