@@ -5,6 +5,7 @@ import { state } from "./state"
 import { actions } from "./actions"
 import { view } from "./view"
 import enhanceActions from "./enhanceActions"
+import { injectedSetState } from "./api"
 
 const ALPHABET =
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -28,17 +29,21 @@ export interface HypperApp {
 
 export function hoa<App extends HypperApp>(app: App): App {
   const div = document.createElement("div")
-  div.id = "hyperapp-devtools"
   document.body.appendChild(div)
 
   const devtoolsApp: Actions = app(state, actions, view, div)
 
   return <App>function(state: any, actions: any, view, element) {
     const runId = guid()
+
+    actions[injectedSetState] = function timeTravel(state) { return state; };
     actions = enhanceActions(devtoolsApp.logAction, runId, actions)
-    actions.$__SET_STATE = state => state
-    devtoolsApp.logInit({ runId, state, timestamp: new Date().getTime() })
-    return app(state, actions, view, element)
+
+    const interop: any = app(state, actions, view, element)
+
+    devtoolsApp.logInit({ runId, state, timestamp: new Date().getTime(), interop })
+
+    return interop;
   }
 }
 export default hoa

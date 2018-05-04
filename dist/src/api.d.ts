@@ -17,6 +17,7 @@ export interface Run {
     timestamp: number;
     actions: AppAction[];
     collapsed: boolean;
+    interop: any;
 }
 export interface Runs {
     [id: string]: Run;
@@ -25,6 +26,7 @@ export interface InitEvent {
     runId: string;
     timestamp: number;
     state: any;
+    interop: any;
 }
 export interface ActionEvent {
     callDone: boolean;
@@ -76,3 +78,4 @@ export interface Actions {
     toggleCollapseRepeatingActions(): any;
     deleteRun(id: string): any;
 }
+export declare const injectedSetState = "$__SET_STATE";

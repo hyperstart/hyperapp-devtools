@@ -116,6 +116,9 @@ function isSelectedAction(state, run, path) {
     return path.every(function (val, i) { return val === a.path[i]; });
 }
 
+// # State
+var injectedSetState = "$__SET_STATE"; // Symbol("setState")
+
 function getPreviousState(action) {
     if (action.actions.length > 0) {
         var child = action.actions[action.actions.length - 1];
@@ -214,7 +217,8 @@ var actions = {
             id: event.runId,
             timestamp: event.timestamp,
             actions: [action],
-            collapsed: false
+            collapsed: false,
+            interop: event.interop,
         };
         return { runs: runs, selectedAction: { run: event.runId, path: [0] } };
     }; },
@@ -263,9 +267,17 @@ var actions = {
         var run = payload.run, path = payload.path;
         return toggleAction(state, run, path);
     }; },
-    select: function (selectedAction) {
+    select: function (selectedAction) { return function (state) {
+        var run = state.runs[selectedAction.run];
+        var actionId = selectedAction.path[0];
+        var nextState = run.actions[actionId].nextState;
+        run.interop[injectedSetState](nextState);
+        /*
+         * When we select an old action, does this disable the app?
+         *  - See https://github.com/hyperstart/hyperapp-devtools/issues/1
+         */
         return { selectedAction: selectedAction };
-    },
+    }; },
     collapseAppAction: function (payload) { return function (state) {
         var run = payload.run, actionPath = payload.actionPath, appActionPath = payload.appActionPath, collapsed = payload.collapsed;
         var path = getPath(run, actionPath);
@@ -590,10 +602,10 @@ function getActionDataText(action) {
     }
     try {
         var result = JSON.stringify(action.actionData);
-        if (result.length > 20) {
+        if (result && result.length > 20) {
             return result.substr(0, 17) + "...";
         }
-        return result;
+        return result || "";
     }
     catch (e) {
         console.log(e);
@@ -756,7 +768,8 @@ function view(state, actions) {
 function enhanceActions(onAction, runId, actions, prefix) {
     var namespace = prefix ? prefix + "." : "";
     return Object.keys(actions || {}).reduce(function (otherActions, name) {
-        var namedspacedName = namespace + name;
+        var fnName = actions[name].name || name;
+        var namedspacedName = namespace + fnName;
         var action = actions[name];
         otherActions[name] =
             typeof action === "function"
@@ -796,15 +809,15 @@ var guid = function () {
 };
 function hoa$1(app) {
     var div = document.createElement("div");
-    div.id = "hyperapp-devtools";
     document.body.appendChild(div);
     var devtoolsApp = app(state, actions, view, div);
     return function (state$$1, actions$$1, view$$1, element) {
         var runId = guid();
+        actions$$1[injectedSetState] = function timeTravel(state$$1) { return state$$1; };
         actions$$1 = enhanceActions(devtoolsApp.logAction, runId, actions$$1);
-        actions$$1.$__SET_STATE = function (state$$1) { return state$$1; };
-        devtoolsApp.logInit({ runId: runId, state: state$$1, timestamp: new Date().getTime() });
-        return app(state$$1, actions$$1, view$$1, element);
+        var interop = app(state$$1, actions$$1, view$$1, element);
+        devtoolsApp.logInit({ runId: runId, state: state$$1, timestamp: new Date().getTime(), interop: interop });
+        return interop;
     };
 }
 
