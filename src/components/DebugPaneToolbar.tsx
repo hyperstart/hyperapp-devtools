@@ -2,60 +2,51 @@ import { h } from "hyperapp"
 
 import "./DebugPaneToolbar.scss"
 
-import { State, Actions } from "../api"
+import { State, Actions, Run } from "../api"
+import { canTravelToSelectedAction } from "../selectors"
 
 export interface DebugPaneToolbarProps {
   state: State
   actions: Actions
+  runs: Run[]
 }
 
 export function DebugPaneToolbar(props: DebugPaneToolbarProps) {
-  const { state, actions } = props
+  const { state, actions, runs } = props
+
   return (
     <div class="debug-pane-toolbar">
-      <div class="dropdown">
-        <button class="btn btn-link dropdown-toggle">View</button>
-        <ul class="menu">
-          <li class="menu-item">
-            <a
-              href=""
-              onclick={e => {
-                actions.setPaneDisplay("fullscreen")
-                e.preventDefault()
-              }}
-            >
-              Full Screen
-            </a>
-          </li>
-          <li class="menu-item">
-            <a
-              href=""
-              onclick={e => {
-                actions.setPaneDisplay("right")
-                e.preventDefault()
-              }}
-            >
-              Align Right
-            </a>
-          </li>
-          <li class="menu-item">
-            <a
-              href=""
-              onclick={e => {
-                actions.setPaneDisplay("bottom")
-                e.preventDefault()
-              }}
-            >
-              Align Bottom
-            </a>
-          </li>
-        </ul>
-      </div>
-      <span class="float-right">
+      <span class="toolbar-section view-buttons">
         <button
-          class="btn btn-clear close-button"
-          onclick={() => actions.showPane(false)}
-        />
+          class="btn btn-sm"
+          onclick={() => actions.setPaneDisplay("fullscreen")}
+        >
+          Full Screen
+        </button>
+        <button
+          class="btn btn-sm"
+          onclick={() => actions.setPaneDisplay("right")}
+        >
+          Right
+        </button>
+        <button
+          class="btn btn-sm"
+          onclick={() => actions.setPaneDisplay("bottom")}
+        >
+          Bottom
+        </button>
+      </span>
+      <span class="toolbar-section travel-button">
+        <button
+          class="btn btn-sm btn-primary"
+          onclick={() => actions.timeTravel(state.selectedAction)}
+          disabled={!canTravelToSelectedAction(state, runs)}
+        >
+          Travel to Action
+        </button>
+      </span>
+      <span class="toolbar-section close-button">
+        <button class="btn btn-clear" onclick={() => actions.showPane(false)} />
       </span>
     </div>
   )

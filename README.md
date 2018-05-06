@@ -51,11 +51,9 @@ const view = (state, actions) => (
 devtools(app)(state, actions, view, document.body)
 ```
 
-## Possible improvements
+## Contributing
 
-* set the app state when time traveling
-* edit the app state
-* trigger actions
+Once you cloned the project and `npm install` the dependencies, you can run the examples with `npm start`.
 
 ## License
 

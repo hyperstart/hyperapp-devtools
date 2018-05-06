@@ -20,8 +20,8 @@ export interface Run {
   id: string
   timestamp: number
   actions: AppAction[]
-  collapsed: boolean,
-  interop: any,
+  collapsed: boolean
+  interop: any
 }
 
 export interface Runs {
@@ -86,6 +86,7 @@ export interface Actions {
   logAction(event: ActionEvent)
   collapseAppAction(payload: CollapseAppActionPayload)
   select(action: SelectedAction | null)
+  timeTravel(action: SelectedAction)
   showPane(shown: boolean)
   setPaneDisplay(paneDisplay: PaneDisplay)
   setValueDisplay(valueDisplay: ValueDisplay)

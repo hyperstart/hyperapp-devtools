@@ -133,7 +133,7 @@ export const actions: ActionsType<api.State, api.Actions> = {
       timestamp: event.timestamp,
       actions: [action],
       collapsed: false,
-      interop: event.interop,
+      interop: event.interop
     }
 
     return { runs, selectedAction: { run: event.runId, path: [0] } }
@@ -185,17 +185,15 @@ export const actions: ActionsType<api.State, api.Actions> = {
     return toggleAction(state, run, path)
   },
   select: (selectedAction: api.SelectedAction | null) => state => {
+    return { selectedAction }
+  },
+  timeTravel: (selectedAction: api.SelectedAction) => state => {
     const run = state.runs[selectedAction.run]
     const actionId = selectedAction.path[0]
     const { nextState } = run.actions[actionId]
     run.interop[api.injectedSetState](nextState)
 
-    /*
-     * When we select an old action, does this disable the app?
-     *  - See https://github.com/hyperstart/hyperapp-devtools/issues/1
-     */
-
-    return { selectedAction }
+    return {}
   },
   collapseAppAction: (payload: api.CollapseAppActionPayload) => state => {
     const { run, actionPath, appActionPath, collapsed } = payload

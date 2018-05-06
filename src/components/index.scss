@@ -1,4 +1,51 @@
-@import "node_modules/spectre.css/src/spectre";
+@import "node_modules/spectre.css/src/_variables";
+@import "node_modules/spectre.css/src/_mixins";
+
+// Reset and dependencies
+@import "node_modules/spectre.css/src/_normalize";
+@import "node_modules/spectre.css/src/_base";
+
+// Core classes
+@import "node_modules/spectre.css/src/_typography";
+// @import "node_modules/spectre.css/src/_asian";
+// @import "node_modules/spectre.css/src/_tables";
+@import "node_modules/spectre.css/src/_buttons";
+@import "node_modules/spectre.css/src/_forms";
+// @import "node_modules/spectre.css/src/_labels";
+// @import "node_modules/spectre.css/src/_codes";
+// @import "node_modules/spectre.css/src/_media";
+
+// Layout
+@import "node_modules/spectre.css/src/_layout";
+@import "node_modules/spectre.css/src/_navbar";
+
+// Components
+// @import "node_modules/spectre.css/src/_accordions";
+// @import "node_modules/spectre.css/src/_autocomplete";
+// @import "node_modules/spectre.css/src/_avatars";
+// @import "node_modules/spectre.css/src/_badges";
+// @import "node_modules/spectre.css/src/_breadcrumbs";
+// @import "node_modules/spectre.css/src/_bars";
+// @import "node_modules/spectre.css/src/_cards";
+// @import "node_modules/spectre.css/src/_chips";
+@import "node_modules/spectre.css/src/_dropdowns";
+// @import "node_modules/spectre.css/src/_empty";
+@import "node_modules/spectre.css/src/_menus";
+// @import "node_modules/spectre.css/src/_modals";
+// @import "node_modules/spectre.css/src/_navs";
+// @import "node_modules/spectre.css/src/_pagination";
+// @import "node_modules/spectre.css/src/_panels";
+// @import "node_modules/spectre.css/src/_popovers";
+// @import "node_modules/spectre.css/src/_steps";
+@import "node_modules/spectre.css/src/_tabs";
+@import "node_modules/spectre.css/src/_tooltips";
+// @import "node_modules/spectre.css/src/_tiles";
+// @import "node_modules/spectre.css/src/_toasts";
+
+// Utility classes
+// @import "node_modules/spectre.css/src/_animations";
+@import "node_modules/spectre.css/src/_utilities";
+
 @import "node_modules/spectre.css/src/spectre-icons";
 
 // Icon caret right

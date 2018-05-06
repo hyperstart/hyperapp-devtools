@@ -70,6 +70,7 @@ export interface Actions {
     logAction(event: ActionEvent): any;
     collapseAppAction(payload: CollapseAppActionPayload): any;
     select(action: SelectedAction | null): any;
+    timeTravel(action: SelectedAction): any;
     showPane(shown: boolean): any;
     setPaneDisplay(paneDisplay: PaneDisplay): any;
     setValueDisplay(valueDisplay: ValueDisplay): any;

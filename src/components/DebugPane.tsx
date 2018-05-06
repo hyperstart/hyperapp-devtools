@@ -20,7 +20,7 @@ export function DebugPane(props: DebugPaneProps) {
   const runs = getRuns(state)
   return (
     <div class="debug-pane">
-      {DebugPaneToolbar({ state, actions })}
+      {DebugPaneToolbar({ state, actions, runs })}
       {DebuggerOptions({ state, actions })}
       {DebugPaneContent({ state, actions, runs })}
     </div>

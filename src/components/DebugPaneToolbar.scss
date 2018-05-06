@@ -5,7 +5,26 @@
   width: 100%;
   border-bottom: 1px solid black;
 
+  .toolbar-section {
+    align-items: center;
+    display: flex;
+    flex: 1 0 0;
+
+    &:not(:first-child):last-child {
+      justify-content: flex-end;
+    }
+  }
+
+  .view-buttons {
+    margin: 0.1rem;
+  }
+  .travel-button {
+    margin: 0.1rem;
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+  }
   .close-button {
-    margin: 0.4rem;
+    margin: 0.1rem 0.3rem;
   }
 }
