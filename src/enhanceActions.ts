@@ -7,12 +7,12 @@ export interface OnAction {
 export function enhanceActions(
   onAction: OnAction,
   runId: string,
-  actions: any,
+  actions: any = {},
   prefix?: string
 ): any {
   var namespace = prefix ? prefix + "." : ""
-  return Object.keys(actions || {}).reduce(function(otherActions, name) {
-    var fnName = actions[name].name || name;
+  return Object.keys(actions).reduce(function(otherActions, name) {
+    var fnName = actions[name].name || name
     var namedspacedName = namespace + fnName
     var action = actions[name]
     otherActions[name] =
