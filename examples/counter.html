@@ -29,6 +29,7 @@
       add: value => state => ({ count: state.count + value }),
       down: () => (_, actions) => actions.add(-1),
       up: () => (_, actions) => actions.add(1),
+      nullAction: null
     }
 
     function view(state, actions) {

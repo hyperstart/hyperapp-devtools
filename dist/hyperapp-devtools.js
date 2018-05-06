@@ -771,40 +771,44 @@ function view(state, actions) {
 }
 
 function enhanceActions(onAction, runId, actions, prefix) {
-    if (!actions) {
-        return null;
-    }
+    var result = {};
     var namespace = prefix ? prefix + "." : "";
-    return Object.keys(actions).reduce(function (otherActions, name) {
-        var fnName = actions[name].name || name;
-        var namedspacedName = namespace + fnName;
+    Object.keys(actions || {}).forEach(function (name) {
         var action = actions[name];
-        otherActions[name] =
-            typeof action === "function"
-                ? function (data) {
-                    return function (state, actions) {
-                        onAction({
-                            callDone: false,
-                            action: namedspacedName,
-                            data: data,
-                            runId: runId
-                        });
-                        var result = action(data);
-                        result =
-                            typeof result === "function" ? result(state, actions) : result;
-                        onAction({
-                            callDone: true,
-                            action: namedspacedName,
-                            data: data,
-                            result: result,
-                            runId: runId
-                        });
-                        return result;
-                    };
-                }
-                : enhanceActions(onAction, runId, action, namedspacedName);
-        return otherActions;
-    }, {});
+        if (!action) {
+            result[name] = null;
+            return;
+        }
+        var fnName = action.name || name;
+        var namedspacedName = namespace + fnName;
+        if (typeof action === "function") {
+            result[name] = function (data) {
+                return function (state, actions) {
+                    onAction({
+                        callDone: false,
+                        action: namedspacedName,
+                        data: data,
+                        runId: runId
+                    });
+                    var result = action(data);
+                    result =
+                        typeof result === "function" ? result(state, actions) : result;
+                    onAction({
+                        callDone: true,
+                        action: namedspacedName,
+                        data: data,
+                        result: result,
+                        runId: runId
+                    });
+                    return result;
+                };
+            };
+        }
+        else {
+            result[name] = enhanceActions(onAction, runId, action, namedspacedName);
+        }
+    });
+    return result;
 }
 
 var ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
