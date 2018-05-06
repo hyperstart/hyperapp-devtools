@@ -771,7 +771,9 @@ function view(state, actions) {
 }
 
 function enhanceActions(onAction, runId, actions, prefix) {
-    if (actions === void 0) { actions = {}; }
+    if (!actions) {
+        return null;
+    }
     var namespace = prefix ? prefix + "." : "";
     return Object.keys(actions).reduce(function (otherActions, name) {
         var fnName = actions[name].name || name;
