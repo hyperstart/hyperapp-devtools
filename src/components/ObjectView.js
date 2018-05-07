@@ -101,6 +101,7 @@ function Obj(value, path, expanded) {
 
 export function ObjectView(props) {
   props.path = props.path || "root"
+  console.log("Devtools", Switch(props, props.path, props.expanded))
   return h(
     "div",
     { class: "_object-view" },

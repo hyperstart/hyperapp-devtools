@@ -21,9 +21,8 @@ $base0f: #ab7967;
 
 ._object-view {
   display: flex;
-  min-height: 0px;
-  min-width: 0px;
   flex-grow: 1;
+  overflow: auto;
   color: $base05;
   font-family: "Roboto Mono", monospace;
   font-size: 12px;

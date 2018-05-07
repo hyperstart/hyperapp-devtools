@@ -414,13 +414,13 @@ function DebugPaneToolbar(props) {
             h("button", { class: "btn btn-clear", onclick: function () { return actions.showPane(false); } }))));
 }
 
-var css$6 = ".debug-pane-content {\n  display: flex;\n  flex-direction: row;\n  flex-grow: 1; }\n";
+var css$6 = ".debug-pane-content {\n  display: flex;\n  flex-direction: row;\n  flex-grow: 1;\n  min-width: 0;\n  min-height: 0; }\n";
 styleInject(css$6);
 
 var css$8 = ".object-details-pane {\n  flex: 0 0 60%;\n  border: 1px solid #666666;\n  margin: 0.1rem; }\n  .object-details-pane pre {\n    margin: 0rem; }\n";
 styleInject(css$8);
 
-var css$10 = "@charset \"UTF-8\";\n._object-view {\n  display: flex;\n  min-height: 0px;\n  min-width: 0px;\n  flex-grow: 1;\n  color: #c0c5ce;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 12px;\n  line-height: 1.25em;\n  white-space: nowrap;\n  background: #2b303b; }\n  ._object-view .-row {\n    padding: 0 0 0 2ch; }\n    ._object-view .-row:not(:last-of-type)::after {\n      content: \",\"; }\n  ._object-view .-key {\n    color: #bf616a; }\n    ._object-view .-key::after {\n      color: #c0c5ce;\n      content: \": \"; }\n  ._object-view .-null::before {\n    color: #d08770;\n    content: \"null\"; }\n  ._object-view .-array::after {\n    content: \"]\"; }\n  ._object-view .-array::before {\n    content: \"[\"; }\n  ._object-view .-boolean {\n    color: #96b5b4; }\n  ._object-view .-function::before {\n    content: \"ƒ\"; }\n  ._object-view .-number {\n    color: #ebcb8b; }\n  ._object-view .-object::after {\n    content: \"}\"; }\n  ._object-view .-object::before {\n    content: \"{\"; }\n  ._object-view .-string {\n    color: #a3be8c; }\n    ._object-view .-string::after {\n      content: \"'\"; }\n    ._object-view .-string::before {\n      content: \"'\"; }\n  ._object-view .-undefined::before {\n    color: #d08770;\n    content: \"undefined\"; }\n  ._object-view .-expand::before {\n    content: \"+\"; }\n  ._object-view .-collapse::before {\n    content: \"-\"; }\n";
+var css$10 = "@charset \"UTF-8\";\n._object-view {\n  display: flex;\n  flex-grow: 1;\n  overflow: auto;\n  color: #c0c5ce;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 12px;\n  line-height: 1.25em;\n  white-space: nowrap;\n  background: #2b303b; }\n  ._object-view .-row {\n    padding: 0 0 0 2ch; }\n    ._object-view .-row:not(:last-of-type)::after {\n      content: \",\"; }\n  ._object-view .-key {\n    color: #bf616a; }\n    ._object-view .-key::after {\n      color: #c0c5ce;\n      content: \": \"; }\n  ._object-view .-null::before {\n    color: #d08770;\n    content: \"null\"; }\n  ._object-view .-array::after {\n    content: \"]\"; }\n  ._object-view .-array::before {\n    content: \"[\"; }\n  ._object-view .-boolean {\n    color: #96b5b4; }\n  ._object-view .-function::before {\n    content: \"ƒ\"; }\n  ._object-view .-number {\n    color: #ebcb8b; }\n  ._object-view .-object::after {\n    content: \"}\"; }\n  ._object-view .-object::before {\n    content: \"{\"; }\n  ._object-view .-string {\n    color: #a3be8c; }\n    ._object-view .-string::after {\n      content: \"'\"; }\n    ._object-view .-string::before {\n      content: \"'\"; }\n  ._object-view .-undefined::before {\n    color: #d08770;\n    content: \"undefined\"; }\n  ._object-view .-expand::before {\n    content: \"+\"; }\n  ._object-view .-collapse::before {\n    content: \"-\"; }\n";
 styleInject(css$10);
 
 // this file is taken from https://raw.githubusercontent.com/Mytrill/hyperapp-object-view
@@ -524,6 +524,7 @@ function Obj(value, path, expanded) {
 
 function ObjectView(props) {
   props.path = props.path || "root";
+  console.log("Devtools", Switch(props, props.path, props.expanded));
   return h$1(
     "div",
     { class: "_object-view" },
