@@ -1,7 +1,7 @@
-@import "./index.scss";
+@import "variables";
 
 .run-action-item-count {
-  color: orange;
+  color: $text-accent-color;
 }
 
 .run-action-item {
@@ -10,12 +10,12 @@
 
   .item-link {
     display: block;
-    color: black;
+    color: $text-color;
 
     &:hover {
-      background-color: $secondary-color;
+      background-color: $bg-color-hover;
       text-decoration: none;
-      color: black;
+      color: $text-color;
     }
 
     &:focus {
@@ -23,13 +23,13 @@
     }
 
     &.selected {
-      background-color: $secondary-color-dark;
+      background-color: $bg-color-selected;
       font-weight: bold;
-      color: black;
+      color: $text-color;
     }
   }
 
   .icon:hover {
-    color: $primary-color;
+    color: $text-primary-color;
   }
 }

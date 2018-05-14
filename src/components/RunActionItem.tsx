@@ -7,6 +7,7 @@ import { INITIAL_ACTION } from "../actions"
 
 import { RunActionItemList } from "./RunActionItemList"
 import { isSelectedAction } from "../selectors"
+import { Icon } from "./Icon"
 
 // # Helpers
 
@@ -54,7 +55,7 @@ function ToggleActionItem(props: ToggleActionItemProps) {
   const { action, run, actions, path } = props
 
   if (action.actions.length === 0) {
-    return <span class="icon" />
+    return <Icon name="empty" />
   }
 
   const onclick = (e: Event) => {
@@ -64,10 +65,10 @@ function ToggleActionItem(props: ToggleActionItemProps) {
   }
 
   if (action.collapsed) {
-    return <span class="icon icon-caret-right" onclick={onclick} />
+    return <Icon name="caret-right" onclick={onclick} />
   }
 
-  return <span class="icon icon-caret" onclick={onclick} />
+  return <Icon name="caret-bottom" onclick={onclick} />
 }
 
 // # ActionItemLink
@@ -95,8 +96,8 @@ function ActionItemLink(props: ActionItemLinkProps) {
 
   const displayName =
     action.name === INITIAL_ACTION
-      ? "Initial State"
-      : `${action.name}(${getActionDataText(action)})`
+      ? " Initial State"
+      : ` ${action.name}(${getActionDataText(action)})`
   return (
     <a href="" class={className} onclick={onclick}>
       {ToggleActionItem(props)}

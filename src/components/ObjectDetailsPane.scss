@@ -1,6 +1,8 @@
+@import "variables";
+
 .object-details-pane {
   flex: 0 0 60%;
-  border: 1px solid #666666;
+  border: 1px solid $border-color;
   margin: 0.1rem;
 
   pre {

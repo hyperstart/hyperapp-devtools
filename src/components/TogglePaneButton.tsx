@@ -13,11 +13,10 @@ export function TogglePaneButton(props: TogglePaneButtonProps) {
   const { state, actions } = props
 
   return (
-    <button
-      class="btn toggle-pane-button"
-      onclick={() => actions.showPane(!state.paneShown)}
-    >
-      Devtools
-    </button>
+    <div class="hyperapp-devtools toggle-pane-button">
+      <button onclick={() => actions.showPane(!state.paneShown)}>
+        Devtools
+      </button>
+    </div>
   )
 }

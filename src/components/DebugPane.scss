@@ -1,9 +1,15 @@
+@import "variables";
+
 .debug-pane {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: #fefefe;
-  border: 1px solid black;
-  color: black;
+  background: $bg-color;
+  border: 1px solid $border-color;
+  color: $text-color;
+
+  a {
+    text-decoration: none;
+  }
 }

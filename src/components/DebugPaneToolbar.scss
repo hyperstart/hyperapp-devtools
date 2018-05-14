@@ -1,9 +1,11 @@
+@import "variables";
+
 .debug-pane-toolbar {
   display: flex;
   justify-content: space-between;
   flex-shrink: 0;
   width: 100%;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid $border-color;
 
   .toolbar-section {
     align-items: center;

@@ -14,19 +14,17 @@ export function DebuggerOptions(props: DebuggerOptionsProps) {
 
   return (
     <div class="debugger-options">
-      <div class="form-group option">
-        <label class="form-checkbox">
-          <input
-            type="checkbox"
-            checked={state.collapseRepeatingActions}
-            onchange={actions.toggleCollapseRepeatingActions}
-          />
-          <i class="form-icon" /> Group repeating actions
-        </label>
+      <div class="option">
+        <input
+          id="debugger-group-actions-cb"
+          type="checkbox"
+          checked={state.collapseRepeatingActions}
+          onchange={actions.toggleCollapseRepeatingActions}
+        />
+        <label for="debugger-group-actions-cb">Group repeating actions</label>
       </div>
-      <div class="form-group option">
+      <div class="option">
         <select
-          class="form-select"
           onchange={e => actions.setValueDisplay(e.target.value)}
           value={state.valueDisplay}
         >

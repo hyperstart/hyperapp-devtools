@@ -1,13 +1,7 @@
+@import "variables";
+
 .toggle-pane-button {
   position: fixed;
   right: 2%;
   bottom: 2%;
-
-  &:hover {
-    background: #efefef;
-  }
-
-  &:active {
-    background: #dddddd;
-  }
 }

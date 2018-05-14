@@ -3,8 +3,6 @@ import { h } from "hyperapp"
 import { State, Actions, PaneDisplay } from "./api"
 import { DebugPane, TogglePaneButton } from "./components"
 
-import "./view.scss"
-
 function getClassName(display: PaneDisplay): string {
   switch (display) {
     case "fullscreen":

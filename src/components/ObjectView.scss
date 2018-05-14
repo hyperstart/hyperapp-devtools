@@ -24,11 +24,11 @@ $base0f: #ab7967;
   flex-grow: 1;
   overflow: auto;
   color: $base05;
-  font-family: "Roboto Mono", monospace;
-  font-size: 12px;
-  line-height: 1.25em;
   white-space: nowrap;
   background: $base00;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.8rem;
+  line-height: 1rem;
 
   .-row {
     padding: 0 0 0 2ch;

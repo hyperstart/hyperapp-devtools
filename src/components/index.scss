@@ -1,74 +1,87 @@
-@import "node_modules/spectre.css/src/_variables";
-@import "node_modules/spectre.css/src/_mixins";
+@import "variables";
 
-// Reset and dependencies
-@import "node_modules/spectre.css/src/_normalize";
-@import "node_modules/spectre.css/src/_base";
+.hyperapp-devtools {
+  // reset
+  font-size: 1rem;
+  line-height: 1.25rem;
 
-// Core classes
-@import "node_modules/spectre.css/src/_typography";
-// @import "node_modules/spectre.css/src/_asian";
-// @import "node_modules/spectre.css/src/_tables";
-@import "node_modules/spectre.css/src/_buttons";
-@import "node_modules/spectre.css/src/_forms";
-// @import "node_modules/spectre.css/src/_labels";
-// @import "node_modules/spectre.css/src/_codes";
-// @import "node_modules/spectre.css/src/_media";
+  button {
+    border: 1px solid $border-color;
+    color: $text-color;
+    background-color: $bg-color;
+    border-radius: 0.2rem;
+    margin: 0 0.1rem;
+    padding: 2px 7px;
+    font-size: 0.8rem;
 
-// Layout
-// @import "node_modules/spectre.css/src/_layout";
-// @import "node_modules/spectre.css/src/_navbar";
+    &.selected {
+      background: $bg-color-selected;
 
-// Components
-// @import "node_modules/spectre.css/src/_accordions";
-// @import "node_modules/spectre.css/src/_autocomplete";
-// @import "node_modules/spectre.css/src/_avatars";
-// @import "node_modules/spectre.css/src/_badges";
-// @import "node_modules/spectre.css/src/_breadcrumbs";
-// @import "node_modules/spectre.css/src/_bars";
-// @import "node_modules/spectre.css/src/_cards";
-// @import "node_modules/spectre.css/src/_chips";
-// @import "node_modules/spectre.css/src/_dropdowns";
-// @import "node_modules/spectre.css/src/_empty";
-// @import "node_modules/spectre.css/src/_menus";
-// @import "node_modules/spectre.css/src/_modals";
-// @import "node_modules/spectre.css/src/_navs";
-// @import "node_modules/spectre.css/src/_pagination";
-// @import "node_modules/spectre.css/src/_panels";
-// @import "node_modules/spectre.css/src/_popovers";
-// @import "node_modules/spectre.css/src/_steps";
-// @import "node_modules/spectre.css/src/_tabs";
-// @import "node_modules/spectre.css/src/_tooltips";
-// @import "node_modules/spectre.css/src/_tiles";
-// @import "node_modules/spectre.css/src/_toasts";
+      &:hover {
+        background: $bg-color-selected;
+      }
 
-// Utility classes
-// @import "node_modules/spectre.css/src/_animations";
-// @import "node_modules/spectre.css/src/_utilities";
+      &:active {
+        background: $bg-color-active;
+      }
 
-@import "node_modules/spectre.css/src/spectre-icons";
+      &:focus {
+        outline: 0;
+      }
+    }
 
-// Icon caret right
-span.icon-caret-right {
-  &::before {
-    border-top: 0.3em solid currentColor;
-    border-right: 0.3em solid transparent;
-    border-left: 0.3em solid transparent;
-    content: "";
-    height: 0;
-    transform: translate(-50%, -50%) rotate(-90deg);
-    width: 0;
+    &:hover {
+      cursor: pointer;
+      background: $bg-color-hover;
+    }
+
+    &:active {
+      background: $bg-color-active;
+    }
+
+    &:focus {
+      outline: 0;
+    }
+
+    &[disabled] {
+      border-color: $border-color-disabled;
+      color: $text-color-disabled;
+      background-color: $bg-color-disabled;
+
+      &:hover {
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .scrollable {
+    display: flex;
+    overflow: auto;
+
+    .scrollable-content {
+      display: flex;
+      min-height: 0px;
+      min-width: 0px;
+      flex-grow: 1;
+    }
   }
 }
 
-.scrollable {
-  display: flex;
-  overflow: auto;
+.devtools-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 10;
 
-  .scrollable-content {
-    display: flex;
-    min-height: 0px;
-    min-width: 0px;
-    flex-grow: 1;
+  &.align-right {
+    width: 50vw;
+    left: 50vw;
+  }
+
+  &.align-bottom {
+    height: 50vh;
+    top: 50vh;
   }
 }

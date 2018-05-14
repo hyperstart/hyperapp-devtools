@@ -19,7 +19,7 @@ export function DebugPane(props: DebugPaneProps) {
 
   const runs = getRuns(state)
   return (
-    <div class="debug-pane">
+    <div class="hyperapp-devtools debug-pane">
       {DebugPaneToolbar({ state, actions, runs })}
       {DebuggerOptions({ state, actions })}
       {DebugPaneContent({ state, actions, runs })}
