@@ -57,4 +57,9 @@ Once you cloned the project and `npm install` the dependencies, you can run the 
 
 ## License
 
-MIT
+GPL
+
+**TLDR**
+
+* You may use this to debug your own projects (open source, closed source, free, commercial, anything goes...)
+* If you distribute this as part of your product/project, the project must be GPL (if that's not OK, please contact us).
