@@ -1,6 +1,7 @@
 import { ActionsType } from "hyperapp"
 import { get, merge, set } from "./immutable"
 import { getPath } from "./selectors"
+import { ObjectView } from "@whaaaley/hyperapp-object-view"
 
 import * as api from "./api"
 
@@ -220,5 +221,6 @@ export const actions: ActionsType<api.State, api.Actions> = {
     const runs = { ...state.runs }
     delete runs[id]
     return { runs }
-  }
+  },
+  ObjectView: ObjectView.actions
 }
