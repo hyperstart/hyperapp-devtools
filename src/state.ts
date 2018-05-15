@@ -7,5 +7,6 @@ export const state: State = {
   valueDisplay: "state",
   paneShown: false,
   selectedAction: null,
-  collapseRepeatingActions: true
+  collapseRepeatingActions: true,
+  ObjectView: {}
 }

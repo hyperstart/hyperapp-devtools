@@ -2,7 +2,7 @@ import { h } from "hyperapp"
 
 import "./ObjectDetailsPane.scss"
 
-import { ObjectView } from "./ObjectView"
+import { ObjectView } from "@whaaaley/hyperapp-object-view"
 
 import { State, Actions, Run, AppAction } from "../api"
 import { getSelectedAction } from "../selectors"
@@ -31,7 +31,7 @@ function Pane(props: PaneProps, value: any) {
 
   return (
     <div class="object-details-pane scrollable">
-      {ObjectView({ value, expanded })}
+      {ObjectView.view('root', value)}
     </div>
   )
 }
