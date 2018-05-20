@@ -2,18 +2,17 @@ import { h } from "hyperapp"
 
 import "./DebugPaneToolbar.scss"
 
-import { State, Actions, Run } from "../api"
-import { canTravelToSelectedAction } from "../selectors"
+import { State, Actions } from "../api"
+import { canTravelToSelectedEvent } from "../selectors"
 import { Icon } from "./Icon"
 
 export interface DebugPaneToolbarProps {
   state: State
   actions: Actions
-  runs: Run[]
 }
 
 export function DebugPaneToolbar(props: DebugPaneToolbarProps) {
-  const { state, actions, runs } = props
+  const { state, actions } = props
 
   return (
     <div class="debug-pane-toolbar">
@@ -39,8 +38,8 @@ export function DebugPaneToolbar(props: DebugPaneToolbarProps) {
       </span>
       <span class="toolbar-section travel-button">
         <button
-          onclick={() => actions.timeTravel(state.selectedAction)}
-          disabled={!canTravelToSelectedAction(state, runs)}
+          onclick={() => actions.timeTravel(state.selectedEvent)}
+          disabled={!canTravelToSelectedEvent(state)}
         >
           Travel to Action
         </button>

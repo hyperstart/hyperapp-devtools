@@ -1,11 +1,12 @@
 import { State } from "./api"
 
 export const state: State = {
-  runs: {},
-  logs: [],
+  runs: [],
+  runsById: {},
   paneDisplay: "right",
   valueDisplay: "state",
   paneShown: false,
-  selectedAction: null,
-  collapseRepeatingActions: true
+  selectedEvent: null,
+  collapseRepeatingEvents: true,
+  detailsPaneExpandedPaths: {}
 }

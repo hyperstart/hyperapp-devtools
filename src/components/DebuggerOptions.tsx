@@ -18,8 +18,8 @@ export function DebuggerOptions(props: DebuggerOptionsProps) {
         <input
           id="debugger-group-actions-cb"
           type="checkbox"
-          checked={state.collapseRepeatingActions}
-          onchange={actions.toggleCollapseRepeatingActions}
+          checked={state.collapseRepeatingEvents}
+          onchange={actions.toggleCollapseRepeatingEvents}
         />
         <label for="debugger-group-actions-cb">Group repeating actions</label>
       </div>

@@ -1,74 +1,52 @@
-import { State, Run, AppAction } from "./api"
+import { AppEvent, State, Run, SelectedEvent } from "./api"
 import { get, Path } from "./immutable"
 
-function compareRuns(r1: Run, r2: Run): number {
-  return r1.timestamp - r2.timestamp
+export function isValueDisplayExpanded(state: State, path: string): boolean {
+  const expanded = state.detailsPaneExpandedPaths[path]
+  if (typeof expanded === "boolean") {
+    return expanded
+  }
+  return path.split(".").length < 4
 }
 
-export function getRuns(state: State): Run[] {
-  return Object.keys(state.runs)
-    .map(key => state.runs[key])
-    .sort(compareRuns)
+export function getRun(state: State, runId: string): Run | null {
+  return state.runsById[runId] || null
 }
 
-export function getSelectedAction(state: State): AppAction | null {
-  if (!state.selectedAction) {
+export function isSelectedEvent(state: State, event: AppEvent): boolean {
+  const selected = state.selectedEvent
+  if (!selected || !event) {
+    return false
+  }
+  const run = state.runsById[selected.runId]
+  return run && run.eventsById[selected.eventId] === event
+}
+
+export function getSelectedEvent(
+  state: State,
+  event: SelectedEvent = state.selectedEvent
+): AppEvent | null {
+  if (!event) {
     return null
   }
 
-  const { run, path } = state.selectedAction
-
-  return get(state.runs, getPath(run, path))
+  return state.runsById[event.runId].eventsById[event.eventId]
 }
 
-export function getPath(run: string, path: number[]): Path {
-  const result: Path = [run]
-  path.forEach(index => {
-    result.push("actions", index)
-  })
-  return result
+export function getLatestRun(state: State): Run | null {
+  if (state.runs.length === 0) {
+    return null
+  }
+
+  return state.runsById[state.runs.length - 1]
 }
 
-export function isSelectedAction(
-  state: State,
-  run: string,
-  path: number[]
-): boolean {
-  if (!state.selectedAction) {
+export function canTravelToSelectedEvent(state: State): boolean {
+  const run = getLatestRun(state)
+  const event = getSelectedEvent(state)
+  if (!run || !event || event.type !== "action") {
     return false
   }
 
-  const a = state.selectedAction
-
-  if (run !== a.run) {
-    return false
-  }
-
-  if (path.length !== a.path.length) {
-    return false
-  }
-
-  return path.every((val, i) => val === a.path[i])
-}
-
-export function canTravelToSelectedAction(state: State, runs: Run[]): boolean {
-  const action = state.selectedAction
-  if (!action || action.path.length === 0 || runs.length === 0) {
-    return false
-  }
-
-  // a nested action is selected, so it cannot be the lastest one
-  // so we can time travel to it
-  if (action.path.length !== 1) {
-    return true
-  }
-
-  // get last run
-  const run = runs[runs.length - 1]
-  if (run.actions.length === 0 || action.run !== run.id) {
-    return false
-  }
-
-  // we can time travel if not the latest action selected
-  return run.actions.length - 1 !== action.path[0]
+  return event.stateAfter && event.stateAfter !== run.currentState
 }

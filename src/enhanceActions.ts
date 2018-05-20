@@ -1,11 +1,8 @@
-import { Actions, ActionEvent } from "./api"
-
-export interface OnAction {
-  (call: ActionEvent): void
-}
+import { Actions } from "./api"
+import { guid } from "./utils"
 
 export function enhanceActions(
-  onAction: OnAction,
+  hoaActions: Actions,
   runId: string,
   actions: any,
   prefix?: string
@@ -25,27 +22,39 @@ export function enhanceActions(
     if (typeof action === "function") {
       result[name] = function(data) {
         return function(state, actions) {
-          onAction({
-            callDone: false,
-            action: namedspacedName,
-            data,
+          const eventId = guid()
+          hoaActions.logCallStart({
+            type: "action",
+            name: namedspacedName,
+            args: [data],
+            eventId,
             runId
           })
-          var result = action(data)
-          result =
-            typeof result === "function" ? result(state, actions) : result
-          onAction({
-            callDone: true,
-            action: namedspacedName,
-            data,
-            result,
-            runId
-          })
-          return result
+          try {
+            let result = action(data)
+            result =
+              typeof result === "function" ? result(state, actions) : result
+
+            hoaActions.logCallEnd({
+              runId,
+              eventId,
+              result
+            })
+
+            return result
+          } catch (error) {
+            hoaActions.logCallEnd({
+              runId,
+              eventId,
+              error
+            })
+
+            throw error
+          }
         }
       }
     } else {
-      result[name] = enhanceActions(onAction, runId, action, namedspacedName)
+      result[name] = enhanceActions(hoaActions, runId, action, namedspacedName)
     }
   })
 

@@ -4,29 +4,28 @@ import "./ObjectDetailsPane.scss"
 
 import { ObjectView } from "./ObjectView"
 
-import { State, Actions, Run, AppAction } from "../api"
-import { getSelectedAction } from "../selectors"
+import { State, Actions, Run, AppEvent } from "../api"
+import { getSelectedEvent, isValueDisplayExpanded } from "../selectors"
 
 interface PaneProps {
   state: State
   actions: Actions
-  action: AppAction
+  event: AppEvent
 }
 
 function Pane(props: PaneProps, value: any) {
-  const { state, actions, action } = props
+  const { state, actions, event } = props
 
   function expanded(path: string, expanded?: boolean) {
+    const result = isValueDisplayExpanded(state, path)
     if (typeof expanded === "boolean") {
-      actions.collapseAppAction({
-        actionPath: state.selectedAction.path,
-        run: state.selectedAction.run,
-        appActionPath: path,
-        collapsed: !expanded
+      actions.setDetailsPaneExpanded({
+        expanded: !result,
+        path
       })
     }
 
-    return !action.stateCollapses[path]
+    return result
   }
 
   return (
@@ -37,15 +36,49 @@ function Pane(props: PaneProps, value: any) {
 }
 
 function PaneData(props: PaneProps) {
-  return Pane(props, props.action.actionData)
+  const event = props.event
+  if (event.type === "action") {
+    return Pane(props, event.data)
+  }
+  throw new Error(`Expected action event but got: ${event.type}`)
 }
 
 function PaneResult(props: PaneProps) {
-  return Pane(props, props.action.actionResult)
+  const event = props.event
+  if (event.type === "action") {
+    return Pane(props, event.result)
+  }
+  if (event.type === "function") {
+    return Pane(props, event.result)
+  }
+  throw new Error(`Expected action or function event but got: ${event.type}`)
 }
 
 function PaneState(props: PaneProps) {
-  return Pane(props, props.action.nextState)
+  const event = props.event
+  if (event.type === "action") {
+    return Pane(props, event.stateAfter)
+  }
+  if (event.type === "init") {
+    return Pane(props, event.state)
+  }
+  throw new Error(`Expected action or init event but got: ${event.type}`)
+}
+
+function PaneArgs(props: PaneProps) {
+  const event = props.event
+  if (event.type === "function") {
+    return Pane(props, event.args)
+  }
+  throw new Error(`Expected function event but got: ${event.type}`)
+}
+
+function PaneMessage(props: PaneProps) {
+  const event = props.event
+  if (event.type === "message") {
+    return Pane(props, event.message)
+  }
+  throw new Error(`Expected message event but got: ${event.type}`)
 }
 
 function PaneDebuggerState(props: PaneProps) {
@@ -59,15 +92,19 @@ export interface ObjectDetailsPaneProps {
 
 export function ObjectDetailsPane(props: ObjectDetailsPaneProps) {
   const { state, actions } = props
-  const action = getSelectedAction(props.state)
+  const event = getSelectedEvent(props.state)
   switch (props.state.valueDisplay) {
+    case "args":
+      return PaneArgs({ state, actions, event })
     case "data":
-      return PaneData({ state, actions, action })
+      return PaneData({ state, actions, event })
     case "result":
-      return PaneResult({ state, actions, action })
+      return PaneResult({ state, actions, event })
+    case "message":
+      return PaneMessage({ state, actions, event })
     case "state":
-      return PaneState({ state, actions, action })
+      return PaneState({ state, actions, event })
     case "debugger-state":
-      return PaneDebuggerState({ state, actions, action })
+      return PaneDebuggerState({ state, actions, event })
   }
 }

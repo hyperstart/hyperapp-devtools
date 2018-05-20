@@ -90,6 +90,14 @@ function Obj(value, path, expanded) {
   }
   var keys = Object.keys(value)
   var result = [Collapse(path, expanded)]
+  // TODO later :)
+  // if (
+  //   value.constructor &&
+  //   value.constructor.name &&
+  //   value.constructor.name !== "Object"
+  // ) {
+  //   result.push(`${value.constructor.name} `)
+  // }
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i]
     result.push(

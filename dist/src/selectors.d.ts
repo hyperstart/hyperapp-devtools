@@ -1,7 +1,7 @@
-import { State, Run, AppAction } from "./api";
-import { Path } from "./immutable";
-export declare function getRuns(state: State): Run[];
-export declare function getSelectedAction(state: State): AppAction | null;
-export declare function getPath(run: string, path: number[]): Path;
-export declare function isSelectedAction(state: State, run: string, path: number[]): boolean;
-export declare function canTravelToSelectedAction(state: State, runs: Run[]): boolean;
+import { AppEvent, State, Run, SelectedEvent } from "./api";
+export declare function isValueDisplayExpanded(state: State, path: string): boolean;
+export declare function getRun(state: State, runId: string): Run | null;
+export declare function isSelectedEvent(state: State, event: AppEvent): boolean;
+export declare function getSelectedEvent(state: State, event?: SelectedEvent): AppEvent | null;
+export declare function getLatestRun(state: State): Run | null;
+export declare function canTravelToSelectedEvent(state: State): boolean;

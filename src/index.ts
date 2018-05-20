@@ -1,3 +1,3 @@
-import hoa from "./hoa"
-
-export default hoa
+export * from "./debug"
+import devtools from "./devtools"
+export { devtools }

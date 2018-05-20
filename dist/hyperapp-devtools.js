@@ -1,330 +1,41 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.devtools = factory());
-}(this, (function () { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.devtools = {})));
+}(this, (function (exports) { 'use strict';
 
-var state = {
-    runs: {},
-    logs: [],
-    paneDisplay: "right",
-    valueDisplay: "state",
-    paneShown: false,
-    selectedAction: null,
-    collapseRepeatingActions: true
-};
-//# sourceMappingURL=state.js.map
-
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
-
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
-
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
-***************************************************************************** */
-/* global Reflect, Promise */
-
-
-
-var __assign = Object.assign || function __assign(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+function debug(value) {
+    if (typeof value === "function") {
+        return function () {
+            // const actions = getDevtoolsApp()
+            // if (actions) {
+            //   actions.logFunctionEvent("Yay!")
+            // }
+            var result = value(arguments);
+            // if (actions) {
+            //   actions.logFunctionEvent("Done!")
+            // }
+            return result;
+        };
     }
-    return t;
-};
-
-/**
- * Get the value at the given path in the given target, or undefined if path doesn't exists.
- */
-function get(target, path) {
-    var result = target;
-    for (var i = 0; i < path.length; i++) {
-        result = result ? result[path[i]] : result;
-    }
-    return result;
+    return value;
 }
-/**
- * Immutable set: set the value at the given path in the given target and returns a new target.
- * Creates the necessary objects/arrays if the path doesn't exist.
- */
-function set(target, path, value) {
-    if (path.length === 0) {
+
+var ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+var SIZE = 16;
+var rand = function () { return ALPHABET[Math.floor(Math.random() * ALPHABET.length)]; };
+var guid = function () {
+    return Array.apply(null, Array(SIZE))
+        .map(rand)
+        .join("");
+};
+function truncate(value, maxLength) {
+    if (maxLength === void 0) { maxLength = 30; }
+    if (value.length <= maxLength) {
         return value;
     }
-    return assign(Array.isArray(target) ? [] : {}, target, (_a = {},
-        _a[path[0]] = path.length > 1 ? set(target[path[0]] || {}, path.slice(1), value) : value,
-        _a));
-    var _a;
+    return value.substr(0, maxLength - 2) + "...";
 }
-/**
- * Immutable merge: merges the given value and the existing value (if any) at the path in the target using Object.assign() and return a new target.
- * Creates the necessary objects/arrays if the path doesn't exist.
- */
-function merge(target, path, value) {
-    return set(target, path, assign(Array.isArray(value) ? [] : {}, get(target, path), value));
-}
-function assign(target, obj, obj2) {
-    for (var i in obj) {
-        target[i] = obj[i];
-    }
-    for (var i in obj2) {
-        target[i] = obj2[i];
-    }
-    return target;
-}
-//# sourceMappingURL=immutable.js.map
-
-function compareRuns(r1, r2) {
-    return r1.timestamp - r2.timestamp;
-}
-function getRuns(state) {
-    return Object.keys(state.runs)
-        .map(function (key) { return state.runs[key]; })
-        .sort(compareRuns);
-}
-function getSelectedAction(state) {
-    if (!state.selectedAction) {
-        return null;
-    }
-    var _a = state.selectedAction, run = _a.run, path = _a.path;
-    return get(state.runs, getPath(run, path));
-}
-function getPath(run, path) {
-    var result = [run];
-    path.forEach(function (index) {
-        result.push("actions", index);
-    });
-    return result;
-}
-function isSelectedAction(state, run, path) {
-    if (!state.selectedAction) {
-        return false;
-    }
-    var a = state.selectedAction;
-    if (run !== a.run) {
-        return false;
-    }
-    if (path.length !== a.path.length) {
-        return false;
-    }
-    return path.every(function (val, i) { return val === a.path[i]; });
-}
-function canTravelToSelectedAction(state, runs) {
-    var action = state.selectedAction;
-    if (!action || action.path.length === 0 || runs.length === 0) {
-        return false;
-    }
-    // a nested action is selected, so it cannot be the lastest one
-    // so we can time travel to it
-    if (action.path.length !== 1) {
-        return true;
-    }
-    // get last run
-    var run = runs[runs.length - 1];
-    if (run.actions.length === 0 || action.run !== run.id) {
-        return false;
-    }
-    // we can time travel if not the latest action selected
-    return run.actions.length - 1 !== action.path[0];
-}
-//# sourceMappingURL=selectors.js.map
-
-// # State
-var injectedSetState = "$__SET_STATE"; // Symbol("setState")
-//# sourceMappingURL=api.js.map
-
-function getPreviousState(action) {
-    if (action.actions.length > 0) {
-        var child = action.actions[action.actions.length - 1];
-        return child.done ? child.nextState : child.previousState;
-    }
-    return action.previousState;
-}
-function mergeResult(action, event) {
-    if (event && event.result) {
-        var path = event.action.split(".");
-        path.pop();
-        return merge(getPreviousState(action), path, event.result);
-    }
-    return getPreviousState(action);
-}
-function isCurrentAction(action) {
-    if (action.done) {
-        return false;
-    }
-    var length = action.actions.length;
-    return length === 0 || action.actions[length - 1].done;
-}
-/**
- * Recursively goes down the tree of actions and append the given event to the last non-done action.
- */
-function appendActionEvent(action, event) {
-    if (action.done) {
-        return action;
-    }
-    // no nested action yet
-    if (isCurrentAction(action)) {
-        if (!event.callDone) {
-            // the action calls to a nested action
-            var nestedAction = {
-                name: event.action,
-                done: false,
-                collapsed: false,
-                actionData: event.data,
-                actions: [],
-                previousState: action.previousState,
-                stateCollapses: {}
-            };
-            return __assign({}, action, { actions: action.actions.concat(nestedAction) });
-        }
-        else if (action.name === event.action) {
-            // the previous call is now complete: set to done and compute the result
-            return __assign({}, action, { done: true, actionResult: event.result, nextState: mergeResult(action, event) });
-        }
-        else {
-            // error case
-            console.log("Previous action is done and event.callDone", action, event);
-            // TODO what to return?!
-            return action;
-        }
-    }
-    else {
-        // there are already some nested actions: call recursivelly
-        var nested = action.actions;
-        var nestedAction = nested[nested.length - 1];
-        var newNestedAction = appendActionEvent(nestedAction, event);
-        if (nestedAction === newNestedAction) {
-            return action;
-        }
-        return __assign({}, action, { actions: nested.slice(0, nested.length - 1).concat(newNestedAction) });
-    }
-}
-function toggleAction(state, run, actionPath) {
-    var path = getPath(run, actionPath);
-    var existingAction = get(state.runs, path);
-    if (typeof existingAction !== "object") {
-        console.log("WARN: try to collapse invalid action, path: ", actionPath);
-        return state;
-    }
-    var collapsed = !existingAction.collapsed;
-    var action = __assign({}, existingAction, { collapsed: collapsed });
-    var runs = set(state.runs, path, action);
-    return { runs: runs };
-}
-var INITIAL_ACTION = "%%% INITIAL STATE %%%";
-var actions = {
-    log: function (event) { return function (state) {
-        return { logs: state.logs.concat([event]) };
-    }; },
-    logInit: function (event) { return function (state) {
-        var runs = __assign({}, state.runs);
-        var action = {
-            name: INITIAL_ACTION,
-            done: true,
-            collapsed: false,
-            actions: [],
-            previousState: null,
-            nextState: event.state,
-            stateCollapses: {}
-        };
-        runs[event.runId] = {
-            id: event.runId,
-            timestamp: event.timestamp,
-            actions: [action],
-            collapsed: false,
-            interop: event.interop
-        };
-        return { runs: runs, selectedAction: { run: event.runId, path: [0] } };
-    }; },
-    logAction: function (event) { return function (state) {
-        var runs = __assign({}, state.runs);
-        var run = runs[event.runId];
-        var actions = run.actions.slice();
-        run.actions = actions;
-        var prevAction = actions.pop();
-        if (prevAction.done) {
-            // previous action done: create new action and append
-            if (!event.callDone) {
-                var action = {
-                    done: false,
-                    collapsed: false,
-                    actions: [],
-                    name: event.action,
-                    actionData: event.data,
-                    previousState: prevAction.nextState,
-                    stateCollapses: {}
-                };
-                actions.push(prevAction, action);
-            }
-            else {
-                // error!, should we log it here?
-                console.log("Previous action is done and event.callDone", state, event);
-            }
-        }
-        else {
-            // previous action not done: find parent action, create and append
-            var action = appendActionEvent(prevAction, event);
-            actions.push(action);
-        }
-        var selectedAction = {
-            run: event.runId,
-            path: [actions.length - 1]
-        };
-        return { runs: runs, selectedAction: selectedAction };
-    }; },
-    toggleRun: function (id) { return function (state) {
-        var runs = __assign({}, state.runs);
-        runs[id] = __assign({}, runs[id], { collapsed: !runs[id].collapsed });
-        return { runs: runs };
-    }; },
-    toggleAction: function (payload) { return function (state) {
-        var run = payload.run, path = payload.path;
-        return toggleAction(state, run, path);
-    }; },
-    select: function (selectedAction) { return function (state) {
-        return { selectedAction: selectedAction };
-    }; },
-    timeTravel: function (selectedAction) { return function (state) {
-        var run = state.runs[selectedAction.run];
-        var actionId = selectedAction.path[0];
-        var nextState = run.actions[actionId].nextState;
-        run.interop[injectedSetState](nextState);
-        return {};
-    }; },
-    collapseAppAction: function (payload) { return function (state) {
-        var run = payload.run, actionPath = payload.actionPath, appActionPath = payload.appActionPath, collapsed = payload.collapsed;
-        var path = getPath(run, actionPath);
-        path.push("stateCollapses", appActionPath);
-        var runs = set(state.runs, path, collapsed);
-        return { runs: runs };
-    }; },
-    showPane: function (paneShown) {
-        return { paneShown: paneShown };
-    },
-    setPaneDisplay: function (paneDisplay) {
-        return { paneDisplay: paneDisplay };
-    },
-    setValueDisplay: function (valueDisplay) {
-        return { valueDisplay: valueDisplay };
-    },
-    toggleCollapseRepeatingActions: function () { return function (state) {
-        return { collapseRepeatingActions: !state.collapseRepeatingActions };
-    }; },
-    deleteRun: function (id) { return function (state) {
-        var runs = __assign({}, state.runs);
-        delete runs[id];
-        return { runs: runs };
-    }; }
-};
-//# sourceMappingURL=actions.js.map
 
 function h(name, attributes) {
   var rest = [];
@@ -391,7 +102,7 @@ function DebuggerOptions(props) {
     var state = props.state, actions = props.actions;
     return (h("div", { class: "debugger-options" },
         h("div", { class: "option" },
-            h("input", { id: "debugger-group-actions-cb", type: "checkbox", checked: state.collapseRepeatingActions, onchange: actions.toggleCollapseRepeatingActions }),
+            h("input", { id: "debugger-group-actions-cb", type: "checkbox", checked: state.collapseRepeatingEvents, onchange: actions.toggleCollapseRepeatingEvents }),
             h("label", { for: "debugger-group-actions-cb" }, "Group repeating actions")),
         h("div", { class: "option" },
             h("select", { onchange: function (e) { return actions.setValueDisplay(e.target.value); }, value: state.valueDisplay },
@@ -400,10 +111,49 @@ function DebuggerOptions(props) {
                 h("option", { value: "data" }, "Show Action Data"),
                 h("option", { value: "debugger-state" }, "Show Debugger Own State")))));
 }
-//# sourceMappingURL=DebuggerOptions.js.map
 
 var css$4 = ".debug-pane-toolbar {\n  display: flex;\n  justify-content: space-between;\n  flex-shrink: 0;\n  width: 100%;\n  border-bottom: 1px solid #000000; }\n  .debug-pane-toolbar .toolbar-section {\n    align-items: center;\n    display: flex;\n    flex: 1 0 0; }\n    .debug-pane-toolbar .toolbar-section:not(:first-child):last-child {\n      justify-content: flex-end; }\n  .debug-pane-toolbar .view-buttons {\n    margin: 0.1rem; }\n  .debug-pane-toolbar .travel-button {\n    margin: 0.1rem;\n    align-items: center;\n    display: flex;\n    flex: 0 0 auto; }\n  .debug-pane-toolbar .close-button {\n    margin: 0.1rem 0.3rem; }\n";
 styleInject(css$4);
+
+function isValueDisplayExpanded(state, path) {
+    var expanded = state.detailsPaneExpandedPaths[path];
+    if (typeof expanded === "boolean") {
+        return expanded;
+    }
+    return path.split(".").length < 4;
+}
+function getRun(state, runId) {
+    return state.runsById[runId] || null;
+}
+function isSelectedEvent(state, event) {
+    var selected = state.selectedEvent;
+    if (!selected || !event) {
+        return false;
+    }
+    var run = state.runsById[selected.runId];
+    return run && run.eventsById[selected.eventId] === event;
+}
+function getSelectedEvent(state, event) {
+    if (event === void 0) { event = state.selectedEvent; }
+    if (!event) {
+        return null;
+    }
+    return state.runsById[event.runId].eventsById[event.eventId];
+}
+function getLatestRun(state) {
+    if (state.runs.length === 0) {
+        return null;
+    }
+    return state.runsById[state.runs.length - 1];
+}
+function canTravelToSelectedEvent(state) {
+    var run = getLatestRun(state);
+    var event = getSelectedEvent(state);
+    if (!run || !event || event.type !== "action") {
+        return false;
+    }
+    return event.stateAfter && event.stateAfter !== run.currentState;
+}
 
 var Svg = function (d, transform) { return function (props) {
     return (h("svg", { xmlns: "http://www.w3.org/2000/svg", width: "8", height: "8", viewBox: "0 0 8 8", class: props.class || "", onclick: props.onclick },
@@ -427,21 +177,19 @@ function Icon(props) {
             throw new Error("Invalid icon " + props.name);
     }
 }
-//# sourceMappingURL=Icon.js.map
 
 function DebugPaneToolbar(props) {
-    var state = props.state, actions = props.actions, runs = props.runs;
+    var state = props.state, actions = props.actions;
     return (h("div", { class: "debug-pane-toolbar" },
         h("span", { class: "toolbar-section view-buttons" },
             h("button", { class: state.paneDisplay === "fullscreen" ? "selected" : "", onclick: function () { return actions.setPaneDisplay("fullscreen"); } }, "Full Screen"),
             h("button", { class: state.paneDisplay === "right" ? "selected" : "", onclick: function () { return actions.setPaneDisplay("right"); } }, "Right"),
             h("button", { class: state.paneDisplay === "bottom" ? "selected" : "", onclick: function () { return actions.setPaneDisplay("bottom"); } }, "Bottom")),
         h("span", { class: "toolbar-section travel-button" },
-            h("button", { onclick: function () { return actions.timeTravel(state.selectedAction); }, disabled: !canTravelToSelectedAction(state, runs) }, "Travel to Action")),
+            h("button", { onclick: function () { return actions.timeTravel(state.selectedEvent); }, disabled: !canTravelToSelectedEvent(state) }, "Travel to Action")),
         h("span", { class: "toolbar-section close-button" },
             h(Icon, { name: "cross", onclick: function () { return actions.showPane(false); } }))));
 }
-//# sourceMappingURL=DebugPaneToolbar.js.map
 
 var css$6 = ".debug-pane-content {\n  display: flex;\n  flex-direction: row;\n  flex-grow: 1;\n  min-width: 0;\n  min-height: 0; }\n";
 styleInject(css$6);
@@ -542,6 +290,14 @@ function Obj(value, path, expanded) {
   }
   var keys = Object.keys(value);
   var result = [Collapse(path, expanded)];
+  // TODO later :)
+  // if (
+  //   value.constructor &&
+  //   value.constructor.name &&
+  //   value.constructor.name !== "Object"
+  // ) {
+  //   result.push(`${value.constructor.name} `)
+  // }
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
     result.push(
@@ -561,47 +317,81 @@ function ObjectView(props) {
 }
 
 function Pane(props, value) {
-    var state = props.state, actions = props.actions, action = props.action;
+    var state = props.state, actions = props.actions;
     function expanded(path, expanded) {
+        var result = isValueDisplayExpanded(state, path);
         if (typeof expanded === "boolean") {
-            actions.collapseAppAction({
-                actionPath: state.selectedAction.path,
-                run: state.selectedAction.run,
-                appActionPath: path,
-                collapsed: !expanded
+            actions.setDetailsPaneExpanded({
+                expanded: !result,
+                path: path
             });
         }
-        return !action.stateCollapses[path];
+        return result;
     }
     return (h("div", { class: "object-details-pane scrollable" }, ObjectView({ value: value, expanded: expanded })));
 }
 function PaneData(props) {
-    return Pane(props, props.action.actionData);
+    var event = props.event;
+    if (event.type === "action") {
+        return Pane(props, event.data);
+    }
+    throw new Error("Expected action event but got: " + event.type);
 }
 function PaneResult(props) {
-    return Pane(props, props.action.actionResult);
+    var event = props.event;
+    if (event.type === "action") {
+        return Pane(props, event.result);
+    }
+    if (event.type === "function") {
+        return Pane(props, event.result);
+    }
+    throw new Error("Expected action or function event but got: " + event.type);
 }
 function PaneState(props) {
-    return Pane(props, props.action.nextState);
+    var event = props.event;
+    if (event.type === "action") {
+        return Pane(props, event.stateAfter);
+    }
+    if (event.type === "init") {
+        return Pane(props, event.state);
+    }
+    throw new Error("Expected action or init event but got: " + event.type);
+}
+function PaneArgs(props) {
+    var event = props.event;
+    if (event.type === "function") {
+        return Pane(props, event.args);
+    }
+    throw new Error("Expected function event but got: " + event.type);
+}
+function PaneMessage(props) {
+    var event = props.event;
+    if (event.type === "message") {
+        return Pane(props, event.message);
+    }
+    throw new Error("Expected message event but got: " + event.type);
 }
 function PaneDebuggerState(props) {
     return Pane(props, props.state);
 }
 function ObjectDetailsPane(props) {
     var state = props.state, actions = props.actions;
-    var action = getSelectedAction(props.state);
+    var event = getSelectedEvent(props.state);
     switch (props.state.valueDisplay) {
+        case "args":
+            return PaneArgs({ state: state, actions: actions, event: event });
         case "data":
-            return PaneData({ state: state, actions: actions, action: action });
+            return PaneData({ state: state, actions: actions, event: event });
         case "result":
-            return PaneResult({ state: state, actions: actions, action: action });
+            return PaneResult({ state: state, actions: actions, event: event });
+        case "message":
+            return PaneMessage({ state: state, actions: actions, event: event });
         case "state":
-            return PaneState({ state: state, actions: actions, action: action });
+            return PaneState({ state: state, actions: actions, event: event });
         case "debugger-state":
-            return PaneDebuggerState({ state: state, actions: actions, action: action });
+            return PaneDebuggerState({ state: state, actions: actions, event: event });
     }
 }
-//# sourceMappingURL=ObjectDetailsPane.js.map
 
 var css$12 = ".runs-pane {\n  flex: 0 0 40%;\n  border: 1px solid #000000;\n  margin: 0.1rem;\n  align-items: stretch; }\n  .runs-pane .runs-pane-runs {\n    margin: 0.2rem 0rem 0.4rem 0.2rem;\n    padding: 0; }\n";
 styleInject(css$12);
@@ -609,18 +399,17 @@ styleInject(css$12);
 var css$14 = ".run-pane-item {\n  list-style-type: none;\n  width: 100%; }\n  .run-pane-item h2 {\n    font-size: 1.2rem;\n    margin: 0.2rem 0 0.2rem 0; }\n";
 styleInject(css$14);
 
-var css$16 = ".run-action-item-list {\n  list-style-type: none;\n  margin: 0 0 0 0.6rem;\n  padding: 0; }\n";
+var css$16 = ".run-event-count {\n  color: #ff6600; }\n\n.run-event {\n  margin: 0rem;\n  width: 100%; }\n  .run-event .item-link {\n    display: block;\n    color: #000000; }\n    .run-event .item-link:hover {\n      background-color: #d3e5fd;\n      text-decoration: none;\n      color: #000000; }\n    .run-event .item-link:focus {\n      text-decoration: none; }\n    .run-event .item-link.selected {\n      background-color: #9fbbdf;\n      font-weight: bold;\n      color: #000000; }\n  .run-event .icon:hover {\n    color: #3834ff; }\n";
 styleInject(css$16);
 
-var css$18 = ".run-action-item-count {\n  color: #ff6600; }\n\n.run-action-item {\n  margin: 0rem;\n  width: 100%; }\n  .run-action-item .item-link {\n    display: block;\n    color: #000000; }\n    .run-action-item .item-link:hover {\n      background-color: #d3e5fd;\n      text-decoration: none;\n      color: #000000; }\n    .run-action-item .item-link:focus {\n      text-decoration: none; }\n    .run-action-item .item-link.selected {\n      background-color: #9fbbdf;\n      font-weight: bold;\n      color: #000000; }\n  .run-action-item .icon:hover {\n    color: #3834ff; }\n";
-styleInject(css$18);
-
-function getRepeatText(array, index) {
-    var name = array[index].name;
+// # Helpers
+function getRepeatText(run, events, index) {
+    var event = run.eventsById[events[index]];
     var result = 1;
     var i = index - 1;
     while (i >= 0) {
-        if (name === array[i].name) {
+        var previous = run.eventsById[events[i]];
+        if (previous.name === event.name && previous.type === event.type) {
             result++;
             i--;
         }
@@ -630,94 +419,114 @@ function getRepeatText(array, index) {
     }
     return result === 1 ? "" : " (x" + result + ")";
 }
-function getActionDataText(action) {
-    if (typeof action.actionData === "undefined") {
-        return "";
+function getArgumentText(arg) {
+    if (arg &&
+        typeof arg === "object" &&
+        arg.constructor &&
+        arg.constructor.name !== "Object") {
+        return arg.constructor.name;
     }
-    try {
-        var result = JSON.stringify(action.actionData);
-        if (result && result.length > 20) {
-            return result.substr(0, 17) + "...";
+    return JSON.stringify(arg);
+}
+var MAX_LENGTH = 20;
+function getArgumentsText(args) {
+    var result = "";
+    for (var i = 0; i < args.length; i++) {
+        var arg = args[i];
+        var text = (result +=
+            getArgumentText(arg) + (i < args.length - 1 ? ", " : ""));
+        if (result.length === MAX_LENGTH) {
+            return result;
         }
-        return result || "";
+        else if (result.length > MAX_LENGTH) {
+            return result.substring(0, MAX_LENGTH - 3) + "...";
+        }
     }
-    catch (e) {
-        console.log(e);
-        return "error";
+    return result;
+}
+function getDisplayName(event) {
+    switch (event.type) {
+        case "init":
+            return "Initial State";
+        case "action":
+            return event.name + "(" + getArgumentsText(typeof event.data === "undefined" ? [] : [event.data]) + ")";
+        case "function":
+            return "f " + event.name + "(" + getArgumentsText(event.args) + ")";
+        case "message":
+            return "[" + event.level + "] " + truncate(event.message);
     }
 }
-function ToggleActionItem(props) {
-    var action = props.action, run = props.run, actions$$1 = props.actions, path = props.path;
-    if (action.actions.length === 0) {
+function ToggleEvent(props) {
+    var actions = props.actions, run = props.run, event = props.event;
+    if (!event.children || event.children.length === 0) {
         return h(Icon, { name: "empty" });
     }
     var onclick = function (e) {
-        event.stopPropagation();
-        event.preventDefault();
-        actions$$1.toggleAction({ run: run.id, path: path });
+        e.stopPropagation();
+        e.preventDefault();
+        actions.toggleEvent({ runId: run.id, eventId: event.id });
     };
-    if (action.collapsed) {
+    if (event.collapsed) {
         return h(Icon, { name: "caret-right", onclick: onclick });
     }
     return h(Icon, { name: "caret-bottom", onclick: onclick });
 }
-function ActionItemLink(props) {
-    var state = props.state, actions$$1 = props.actions, run = props.run, actionList = props.actionList, indexInList = props.indexInList, action = props.action, path = props.path;
-    var selected = isSelectedAction(state, run.id, path);
+function EventLink(props) {
+    var state = props.state, actions = props.actions, run = props.run, events = props.events, indexInList = props.indexInList, event = props.event;
+    var selected = isSelectedEvent(state, event);
     var className = "item-link" + (selected ? " selected" : "");
     var onclick = function (e) {
         e.preventDefault();
-        actions$$1.select({ run: run.id, path: path });
+        actions.select({ runId: run.id, eventId: event.id });
     };
-    var displayName = action.name === INITIAL_ACTION
-        ? " Initial State"
-        : " " + action.name + "(" + getActionDataText(action) + ")";
+    var displayName = getDisplayName(event);
     return (h("a", { href: "", class: className, onclick: onclick },
-        ToggleActionItem(props),
+        ToggleEvent(props),
         displayName,
-        state.collapseRepeatingActions && (h("span", { class: "run-action-item-count" }, getRepeatText(actionList, indexInList)))));
+        state.collapseRepeatingEvents && (h("span", { class: "run-event-count" }, getRepeatText(run, events, indexInList)))));
 }
-function RunActionItem(props) {
-    var state = props.state, actions$$1 = props.actions, run = props.run, actionList = props.actionList, indexInList = props.indexInList, action = props.action, path = props.path;
-    var nextAction = actionList[indexInList + 1];
-    if (nextAction &&
-        nextAction.name === action.name &&
-        state.collapseRepeatingActions) {
+function RunEvent(props) {
+    var state = props.state, actions = props.actions, run = props.run, events = props.events, indexInList = props.indexInList, event = props.event;
+    var nextEvent = run.eventsById[events[indexInList + 1]];
+    if (nextEvent &&
+        nextEvent.name === event.name &&
+        nextEvent.type === event.type &&
+        state.collapseRepeatingEvents) {
         return null;
     }
-    return (h("li", { class: "run-action-item", key: indexInList },
-        ActionItemLink(props),
-        RunActionItemList({
-            state: state,
-            actions: actions$$1,
-            run: run,
-            actionList: action.actions,
-            path: path,
-            collapsed: action.collapsed
-        })));
+    return (h("li", { class: "run-event", key: indexInList },
+        EventLink(props),
+        event.children &&
+            !event.collapsed &&
+            RunEventList({
+                state: state,
+                actions: actions,
+                run: run,
+                events: event.children
+            })));
 }
-//# sourceMappingURL=RunActionItem.js.map
 
-function RunActionItemList(props) {
-    var state = props.state, actions = props.actions, run = props.run, actionList = props.actionList, collapsed = props.collapsed, path = props.path;
-    if (collapsed || actionList.length === 0) {
+var css$18 = ".run-event-list {\n  list-style-type: none;\n  margin: 0 0 0 0.6rem;\n  padding: 0; }\n";
+styleInject(css$18);
+
+function RunEventList(props) {
+    var state = props.state, actions = props.actions, run = props.run, events = props.events;
+    if (events.length === 0) {
         return null;
     }
-    return (h("ul", { class: "run-action-item-list" }, actionList
-        .map(function (action, indexInList) {
-        return RunActionItem({
+    return (h("ul", { class: "run-event-list" }, events
+        .map(function (event, indexInList) {
+        return RunEvent({
             state: state,
             actions: actions,
-            action: action,
-            actionList: actionList,
+            events: run.events,
+            event: run.eventsById[event],
             indexInList: indexInList,
-            run: run,
-            path: path.concat(indexInList)
+            run: run
         });
     })
         .reverse()));
 }
-//# sourceMappingURL=RunActionItemList.js.map
 
 function RunsPaneItem(props) {
     var state = props.state, actions = props.actions, run = props.run;
@@ -727,16 +536,14 @@ function RunsPaneItem(props) {
         h("h2", null,
             "Run - ",
             date),
-        RunActionItemList({
-            state: state,
-            actions: actions,
-            run: run,
-            collapsed: collapsed,
-            actionList: run.actions,
-            path: []
-        })));
+        !collapsed &&
+            RunEventList({
+                run: run,
+                state: state,
+                actions: actions,
+                events: run.events
+            })));
 }
-//# sourceMappingURL=RunsPaneItem.js.map
 
 function RunsPane(props) {
     var state = props.state, actions = props.actions, runs = props.runs;
@@ -748,10 +555,10 @@ function RunsPane(props) {
     return (h("div", { class: "runs-pane scrollable" },
         h("ul", { class: "runs-pane-runs scrollable-content" }, items)));
 }
-//# sourceMappingURL=RunsPane.js.map
 
 function DebugPaneContent(props) {
-    var state = props.state, actions = props.actions, runs = props.runs;
+    var state = props.state, actions = props.actions;
+    var runs = state.runs.map(function (id) { return state.runsById[id]; });
     if (runs.length === 0) {
         return (h("div", { class: "debug-pane-content" },
             h("p", null, "No debug information found, please debug this project.")));
@@ -760,20 +567,17 @@ function DebugPaneContent(props) {
         RunsPane({ state: state, actions: actions, runs: runs }),
         ObjectDetailsPane({ state: state, actions: actions })));
 }
-//# sourceMappingURL=DebugPaneContent.js.map
 
 var css$20 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #ffffff;\n  border: 1px solid #000000;\n  color: #000000; }\n  .debug-pane a {\n    text-decoration: none; }\n";
 styleInject(css$20);
 
 function DebugPane(props) {
     var state = props.state, actions = props.actions;
-    var runs = getRuns(state);
     return (h("div", { class: "hyperapp-devtools debug-pane" },
-        DebugPaneToolbar({ state: state, actions: actions, runs: runs }),
+        DebugPaneToolbar({ state: state, actions: actions }),
         DebuggerOptions({ state: state, actions: actions }),
-        DebugPaneContent({ state: state, actions: actions, runs: runs })));
+        DebugPaneContent({ state: state, actions: actions })));
 }
-//# sourceMappingURL=DebugPane.js.map
 
 var css$22 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n";
 styleInject(css$22);
@@ -783,9 +587,6 @@ function TogglePaneButton(props) {
     return (h("div", { class: "hyperapp-devtools toggle-pane-button" },
         h("button", { onclick: function () { return actions.showPane(!state.paneShown); } }, "Devtools")));
 }
-//# sourceMappingURL=TogglePaneButton.js.map
-
-//# sourceMappingURL=index.js.map
 
 function getClassName(display) {
     switch (display) {
@@ -805,9 +606,344 @@ function view(state, actions) {
     }
     return TogglePaneButton({ state: state, actions: actions });
 }
-//# sourceMappingURL=view.js.map
 
-function enhanceActions(onAction, runId, actions, prefix) {
+var state = {
+    runs: [],
+    runsById: {},
+    paneDisplay: "right",
+    valueDisplay: "state",
+    paneShown: false,
+    selectedEvent: null,
+    collapseRepeatingEvents: true,
+    detailsPaneExpandedPaths: {}
+};
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+
+
+var __assign = Object.assign || function __assign(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+    return t;
+};
+
+var deleteRun = function (id) { return function (state) {
+    var runsById = __assign({}, state.runsById);
+    delete runsById[id];
+    var runs = state.runs.filter(function (s) { return s !== id; });
+    return { runs: runs, runsById: runsById };
+}; };
+
+/**
+ * Get the value at the given path in the given target, or undefined if path doesn't exists.
+ */
+function get(target, path) {
+    var result = target;
+    for (var i = 0; i < path.length; i++) {
+        result = result ? result[path[i]] : result;
+    }
+    return result;
+}
+/**
+ * Immutable set: set the value at the given path in the given target and returns a new target.
+ * Creates the necessary objects/arrays if the path doesn't exist.
+ */
+function set(target, path, value) {
+    if (path.length === 0) {
+        return value;
+    }
+    return assign(Array.isArray(target) ? [] : {}, target, (_a = {},
+        _a[path[0]] = path.length > 1 ? set(target[path[0]] || {}, path.slice(1), value) : value,
+        _a));
+    var _a;
+}
+/**
+ * Immutable merge: merges the given value and the existing value (if any) at the path in the target using Object.assign() and return a new target.
+ * Creates the necessary objects/arrays if the path doesn't exist.
+ */
+function merge(target, path, value) {
+    return set(target, path, assign(Array.isArray(value) ? [] : {}, get(target, path), value));
+}
+function assign(target, obj, obj2) {
+    for (var i in obj) {
+        target[i] = obj[i];
+    }
+    for (var i in obj2) {
+        target[i] = obj2[i];
+    }
+    return target;
+}
+
+var logCallEnd = function (payload) { return function (state) {
+    var runId = payload.runId, eventId = payload.eventId, result = payload.result, error = payload.error;
+    var runsById = __assign({}, state.runsById);
+    var run = __assign({}, runsById[runId]);
+    runsById[runId] = run;
+    run.eventsById = __assign({}, run.eventsById);
+    var event = __assign({}, run.eventsById[eventId]);
+    run.eventsById[eventId] = event;
+    // update the event
+    if (event.type === "action" || event.type === "function") {
+        if (result) {
+            event.result = result;
+            if (event.type === "action" && !result.then) {
+                // update the run's current state
+                var path = event.name.split(".");
+                path.pop();
+                event.stateAfter = merge(event.stateBefore, path, event.result);
+            }
+        }
+        if (error) {
+            event.error = error;
+        }
+    }
+    // update the current event of the run
+    run.currentEvent =
+        eventId === run.currentEvent ? event.parent : run.currentEvent;
+    return { runsById: runsById };
+}; };
+
+function getEvent(state, run, payload) {
+    var args = payload.args, eventId = payload.eventId, name = payload.name, runId = payload.runId, type = payload.type;
+    if (type === "action") {
+        return {
+            type: "action",
+            id: eventId,
+            name: name,
+            data: args && args.length > 0 ? args[0] : undefined,
+            parent: run.currentEvent,
+            children: [],
+            collapsed: false,
+            stateBefore: run.currentState
+        };
+    }
+    return {
+        type: "function",
+        id: eventId,
+        name: name,
+        args: args,
+        children: [],
+        collapsed: false,
+        parent: run.currentEvent
+    };
+}
+var logCallStart = function (payload) { return function (state) {
+    var runId = payload.runId, eventId = payload.eventId;
+    var runsById = __assign({}, state.runsById);
+    var run = __assign({}, runsById[runId]);
+    runsById[runId] = run;
+    run.eventsById[eventId] = getEvent(state, run, payload);
+    var parentId = run.currentEvent;
+    if (parentId) {
+        // append the event to the parent
+        var parent_1 = __assign({}, run.eventsById[parentId]);
+        run.eventsById[parentId] = parent_1;
+        parent_1.children = parent_1.children.concat(eventId);
+    }
+    else {
+        // append the event to the run
+        run.events = run.events.concat(eventId);
+    }
+    run.currentEvent = eventId;
+    return { runsById: runsById };
+}; };
+
+var logInit = function (payload) { return function (state) {
+    var runId = payload.runId, interop = payload.interop, timestamp = payload.timestamp;
+    var runs = state.runs.concat(runId);
+    var runsById = __assign({}, state.runsById);
+    var initEvent = {
+        id: runId,
+        type: "init",
+        name: "Initial State",
+        state: payload.state
+    };
+    runsById[runId] = {
+        id: runId,
+        events: [runId],
+        eventsById: (_a = {}, _a[runId] = initEvent, _a),
+        currentState: payload.state,
+        timestamp: timestamp,
+        interop: interop,
+        collapsed: false
+    };
+    return {
+        runs: runs,
+        runsById: runsById,
+        selectedEvent: {
+            runId: runId,
+            eventId: runId
+        }
+    };
+    var _a;
+}; };
+
+var logMessage = function (payload) { return function (state) {
+    var runId = payload.runId, eventId = payload.eventId, level = payload.level, message = payload.message;
+    var runsById = __assign({}, state.runsById);
+    var run = __assign({}, runsById[runId]);
+    runsById[runId] = run;
+    run.events = run.events.concat(eventId);
+    run.eventsById = __assign({}, run.eventsById, (_a = {}, _a[eventId] = {
+        type: "message",
+        level: level,
+        message: message,
+        name: level,
+        id: eventId,
+        parent: run.currentEvent
+    }, _a));
+    return {
+        runsById: runsById,
+        selectedEvent: {
+            runId: runId,
+            eventId: eventId
+        }
+    };
+    var _a;
+}; };
+
+var ALLOWED_VALUE_DISPLAY = {
+    action: {
+        state: true,
+        result: true,
+        data: true,
+        "debugger-state": true
+    },
+    function: {
+        args: true,
+        result: true,
+        "debugger-state": true
+    },
+    init: {
+        state: true,
+        "debugger-state": true
+    },
+    message: {
+        message: true,
+        "debugger-state": true
+    }
+};
+var DEFAULT_VALUE_DISPLAYS = {
+    action: "state",
+    function: "result",
+    init: "state",
+    message: "message"
+};
+function sanitizeValueDisplay(valueDisplay, event) {
+    if (!ALLOWED_VALUE_DISPLAY[event.type][valueDisplay]) {
+        return DEFAULT_VALUE_DISPLAYS[event.type];
+    }
+    return valueDisplay;
+}
+var select = function (selectedEvent) { return function (state) {
+    var event = getSelectedEvent(state, selectedEvent);
+    return {
+        selectedEvent: selectedEvent,
+        valueDisplay: sanitizeValueDisplay(state.valueDisplay, event)
+    };
+}; };
+
+var setDetailsPaneExpanded = function (payload) { return function (state) {
+    var path = payload.path, expanded = payload.expanded;
+    return {
+        detailsPaneExpandedPaths: __assign({}, state.detailsPaneExpandedPaths, (_a = {}, _a[path] = expanded, _a))
+    };
+    var _a;
+}; };
+
+var setPaneDisplay = function (paneDisplay) { return function (state) { return ({
+    paneDisplay: paneDisplay
+}); }; };
+
+var setValueDisplay = function (valueDisplay) { return function (state) { return ({
+    valueDisplay: valueDisplay
+}); }; };
+
+var showPane = function (paneShown) { return function (state) { return ({
+    paneShown: paneShown
+}); }; };
+
+var injectedSetState = "$__SET_STATE";
+
+var timeTravel = function (selectedEvent) { return function (state) {
+    var run = getRun(state, selectedEvent.runId);
+    if (!run) {
+        return;
+    }
+    var event = getSelectedEvent(state, selectedEvent);
+    if (event) {
+        if (event.type === "action" && event.stateAfter) {
+            run.interop[injectedSetState](event.stateAfter);
+            return;
+        }
+        if (event.type === "init") {
+            run.interop[injectedSetState](event.state);
+        }
+    }
+}; };
+
+var toggleCollapseRepeatingEvents = function () { return function (state) { return ({
+    collapseRepeatingEvents: !state.collapseRepeatingEvents
+}); }; };
+
+var toggleEvent = function (payload) { return function (state) {
+    var runId = payload.runId, eventId = payload.eventId;
+    // const collapsed = state.runsById[runId].eventsById[eventId].collapsed
+    var collapsed = get(state.runsById, [
+        runId,
+        "eventsById",
+        eventId,
+        "collapsed"
+    ]);
+    // state.runsById[runId].eventsById[eventId].collapsed = !collapsed
+    return {
+        runsById: set(state.runsById, [runId, "eventsById", eventId, "collapsed"], !collapsed)
+    };
+}; };
+
+var toggleRun = function (id) { return function (state) {
+    var runsById = __assign({}, state.runsById);
+    runsById[id] = __assign({}, runsById[id], { collapsed: !runsById[id].collapsed });
+    return { runsById: runsById };
+}; };
+
+
+
+var actions = Object.freeze({
+	deleteRun: deleteRun,
+	logCallEnd: logCallEnd,
+	logCallStart: logCallStart,
+	logInit: logInit,
+	logMessage: logMessage,
+	select: select,
+	setDetailsPaneExpanded: setDetailsPaneExpanded,
+	setPaneDisplay: setPaneDisplay,
+	setValueDisplay: setValueDisplay,
+	showPane: showPane,
+	timeTravel: timeTravel,
+	toggleCollapseRepeatingEvents: toggleCollapseRepeatingEvents,
+	toggleEvent: toggleEvent,
+	toggleRun: toggleRun
+});
+
+function enhanceActions(hoaActions, runId, actions, prefix) {
     var result = {};
     var namespace = prefix ? prefix + "." : "";
     Object.keys(actions || {}).forEach(function (name) {
@@ -821,62 +957,70 @@ function enhanceActions(onAction, runId, actions, prefix) {
         if (typeof action === "function") {
             result[name] = function (data) {
                 return function (state, actions) {
-                    onAction({
-                        callDone: false,
-                        action: namedspacedName,
-                        data: data,
+                    var eventId = guid();
+                    hoaActions.logCallStart({
+                        type: "action",
+                        name: namedspacedName,
+                        args: [data],
+                        eventId: eventId,
                         runId: runId
                     });
-                    var result = action(data);
-                    result =
-                        typeof result === "function" ? result(state, actions) : result;
-                    onAction({
-                        callDone: true,
-                        action: namedspacedName,
-                        data: data,
-                        result: result,
-                        runId: runId
-                    });
-                    return result;
+                    try {
+                        var result_1 = action(data);
+                        result_1 =
+                            typeof result_1 === "function" ? result_1(state, actions) : result_1;
+                        hoaActions.logCallEnd({
+                            runId: runId,
+                            eventId: eventId,
+                            result: result_1
+                        });
+                        return result_1;
+                    }
+                    catch (error) {
+                        hoaActions.logCallEnd({
+                            runId: runId,
+                            eventId: eventId,
+                            error: error
+                        });
+                        throw error;
+                    }
                 };
             };
         }
         else {
-            result[name] = enhanceActions(onAction, runId, action, namedspacedName);
+            result[name] = enhanceActions(hoaActions, runId, action, namedspacedName);
         }
     });
     return result;
 }
 
-//# sourceMappingURL=enhanceActions.js.map
+var devtoolsApp;
 
-var ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-var SIZE = 16;
-var rand = function () { return ALPHABET[Math.floor(Math.random() * ALPHABET.length)]; };
-var guid = function () {
-    return Array.apply(null, Array(SIZE))
-        .map(rand)
-        .join("");
-};
-function hoa$1(app) {
+function devtools(app) {
     var div = document.createElement("div");
     document.body.appendChild(div);
-    var devtoolsApp = app(state, actions, view, div);
-    return function (state$$1, actions$$1, view$$1, element) {
+    devtoolsApp = app(state, actions, view, div);
+    return function (state$$1, actions, view$$1, element) {
         var runId = guid();
-        actions$$1[injectedSetState] = function timeTravel(state$$1) { return state$$1; };
-        actions$$1 = enhanceActions(devtoolsApp.logAction, runId, actions$$1);
-        var interop = app(state$$1, actions$$1, view$$1, element);
-        devtoolsApp.logInit({ runId: runId, state: state$$1, timestamp: new Date().getTime(), interop: interop });
+        actions[injectedSetState] = function timeTravel(state$$1) {
+            return state$$1;
+        };
+        actions = enhanceActions(devtoolsApp, runId, actions);
+        var interop = app(state$$1, actions, view$$1, element);
+        devtoolsApp.logInit({
+            runId: runId,
+            state: state$$1,
+            timestamp: new Date().getTime(),
+            interop: interop
+        });
         return interop;
     };
 }
 
-//# sourceMappingURL=hoa.js.map
+exports.devtools = devtools;
+exports.debug = debug;
 
-//# sourceMappingURL=index.js.map
-
-return hoa$1;
+Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 //# sourceMappingURL=hyperapp-devtools.js.map

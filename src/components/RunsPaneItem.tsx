@@ -3,7 +3,7 @@ import { h } from "hyperapp"
 import "./RunsPaneItem.scss"
 
 import { State, Actions, Run } from "../api"
-import { RunActionItemList } from "./RunActionItemList"
+import { RunEventList } from "./RunEventList"
 
 export interface RunsPaneItemProps {
   state: State
@@ -20,14 +20,13 @@ export function RunsPaneItem(props: RunsPaneItemProps) {
   return (
     <li class="run-pane-item" key={run.timestamp}>
       <h2>Run - {date}</h2>
-      {RunActionItemList({
-        state,
-        actions,
-        run,
-        collapsed,
-        actionList: run.actions,
-        path: []
-      })}
+      {!collapsed &&
+        RunEventList({
+          run,
+          state,
+          actions,
+          events: run.events
+        })}
     </li>
   )
 }

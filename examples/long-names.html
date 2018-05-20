@@ -7,13 +7,14 @@
   <title>Counter example with debugger</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <script src="https://unpkg.com/hyperapp"></script>
+  <script src="hyperapp.js"></script>
   <script src="hyperapp-devtools.js"></script>
 </head>
 
 <body>
   <p>Note: this is example is meant to show how the devtools handles overflow, it is not meant to represent a functional/usefull
-    app.</p>
+    app.
+  </p>
   <div id="app" />
   <br />
   <br />
@@ -59,7 +60,7 @@
       )
     )
 
-    devtools(hyperapp.app)(state, actions, view, document.getElementById("app"))
+    devtools.devtools(hyperapp.app)(state, actions, view, document.getElementById("app"))
 
   </script>
 

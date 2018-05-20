@@ -7,7 +7,6 @@ import { DebugPaneToolbar } from "./DebugPaneToolbar"
 import { DebugPaneContent } from "./DebugPaneContent"
 
 import "./DebugPane.scss"
-import { getRuns } from "../selectors"
 
 export interface DebugPaneProps {
   state: State
@@ -17,12 +16,11 @@ export interface DebugPaneProps {
 export function DebugPane(props: DebugPaneProps) {
   const { state, actions } = props
 
-  const runs = getRuns(state)
   return (
     <div class="hyperapp-devtools debug-pane">
-      {DebugPaneToolbar({ state, actions, runs })}
+      {DebugPaneToolbar({ state, actions })}
       {DebuggerOptions({ state, actions })}
-      {DebugPaneContent({ state, actions, runs })}
+      {DebugPaneContent({ state, actions })}
     </div>
   )
 }

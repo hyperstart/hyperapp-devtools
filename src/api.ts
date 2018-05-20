@@ -1,99 +1,143 @@
-// # State
-
-export interface StringMap<Value = any> {
-  [key: string]: Value
+export interface StringMap<V> {
+  [key: string]: V
 }
 
-export interface AppAction {
+export type EventType = "function" | "action" | "init" | "message"
+
+export type AppEvent = InitEvent | ActionEvent | FunctionEvent | MessageEvent
+
+export interface BaseEvent {
+  id: string
+  type: EventType
   name: string
-  done: boolean
-  actions: AppAction[]
-  previousState: any | null
-  collapsed: boolean
-  nextState?: any
-  actionData?: any
-  actionResult?: any
-  stateCollapses: StringMap<boolean>
+  children?: string[]
+  collapsed?: boolean
+  parent?: string
+}
+
+export interface InitEvent extends BaseEvent {
+  type: "init"
+  state: any
+}
+
+export interface ActionEvent extends BaseEvent {
+  type: "action"
+  data: any
+  result?: any
+  error?: any
+  stateBefore: any
+  stateAfter?: any
+}
+
+export interface FunctionEvent extends BaseEvent {
+  type: "function"
+  args: any[]
+  result?: any
+  error?: any
+  returnedBy?: string
+}
+
+export type LogLevel = "info" | "warn" | "error"
+
+export interface MessageEvent extends BaseEvent {
+  type: "message"
+  level: LogLevel
+  message: any
 }
 
 export interface Run {
   id: string
+  events: string[]
+  eventsById: StringMap<AppEvent>
   timestamp: number
-  actions: AppAction[]
   collapsed: boolean
+  currentEvent?: string
+  currentState?: any
   interop: any
 }
 
-export interface Runs {
-  [id: string]: Run
+export interface SelectedEvent {
+  runId: string
+  eventId: string
 }
 
-export interface InitEvent {
+export type PaneDisplay = "fullscreen" | "right" | "bottom"
+
+export type ValueDisplay =
+  | "state"
+  | "result"
+  | "args"
+  | "message"
+  | "data"
+  | "debugger-state"
+
+export interface State {
+  runs: string[]
+  runsById: StringMap<Run>
+  selectedEvent: SelectedEvent | null
+  collapseRepeatingEvents: boolean
+  valueDisplay: ValueDisplay
+  detailsPaneExpandedPaths: StringMap<boolean>
+  paneDisplay: PaneDisplay
+  paneShown: boolean
+}
+
+// # Actions
+
+export interface LogInitPayload {
   runId: string
   timestamp: number
   state: any
   interop: any
 }
 
-export interface ActionEvent {
-  callDone: boolean
+export interface LogMessagePayload {
   runId: string
-  action: string
-  data: any
-  result?: any
-}
-export interface RuntimeEvent {
+  eventId: string
+  level: LogLevel
   message: any
-  level: "info" | "warn" | "error"
 }
 
-export type PaneDisplay = "fullscreen" | "right" | "bottom"
-
-export type ValueDisplay = "state" | "result" | "data" | "debugger-state"
-
-export interface SelectedAction {
-  run: string
-  path: number[]
+export interface LogCallStartPayload {
+  runId: string
+  eventId: string
+  type: "function" | "action"
+  name: string
+  args: any[]
 }
 
-export interface State {
-  runs: Runs
-  logs: RuntimeEvent[]
-  paneShown: boolean
-  paneDisplay: PaneDisplay
-  selectedAction: SelectedAction | null
-  collapseRepeatingActions: boolean
-  valueDisplay: ValueDisplay
+export interface LogCallEndPayload {
+  runId: string
+  eventId: string
+  result?: any
+  error?: any
 }
 
-// # Actions
-
-export interface ToggleActionPayload {
-  run: string
-  path: number[]
+export interface ToggleEventPayload {
+  runId: string
+  eventId: string
 }
 
-export interface CollapseAppActionPayload {
-  run: string
-  actionPath: number[]
-  appActionPath: string
-  collapsed: boolean
+export interface SetDetailsPaneExpandedPayload {
+  path: string
+  expanded: boolean
 }
 
 export interface Actions {
-  log(event: RuntimeEvent)
-  logInit(event: InitEvent)
-  logAction(event: ActionEvent)
-  collapseAppAction(payload: CollapseAppActionPayload)
-  select(action: SelectedAction | null)
-  timeTravel(action: SelectedAction)
+  logInit(payload: LogInitPayload)
+  logMessage(payload: LogMessagePayload)
+  logCallStart(payload: LogCallStartPayload)
+  logCallEnd(payload: LogCallEndPayload)
+  toggleRun(run: string)
+  toggleEvent(payload: ToggleEventPayload)
+  toggleCollapseRepeatingEvents()
+  setDetailsPaneExpanded(payload: SetDetailsPaneExpandedPayload)
   showPane(shown: boolean)
   setPaneDisplay(paneDisplay: PaneDisplay)
   setValueDisplay(valueDisplay: ValueDisplay)
-  toggleRun(run: string)
-  toggleAction(payload: ToggleActionPayload)
-  toggleCollapseRepeatingActions()
+  select(action: SelectedEvent | null)
+  timeTravel(action: SelectedEvent)
   deleteRun(id: string)
 }
 
-export const injectedSetState = "$__SET_STATE" // Symbol("setState")
+export const injectedSetState = "$__SET_STATE"
