@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Error in an action</title>
+  <title>Error in a function</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <script src="hyperapp.js"></script>
@@ -24,10 +24,14 @@
       count: 0
     }
 
+    const fnWithError = devtools.debug("fnWithError", () => {
+      throw new Error("An error occured!")
+    })
+
     const actions = {
       doNothing: () => ({}),
       throwError: () => {
-        throw new Error("An error occured!")
+        fnWithError()
       }
     }
 
