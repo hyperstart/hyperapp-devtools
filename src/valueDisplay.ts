@@ -48,5 +48,10 @@ export function sanitizeValueDisplay(
     return DEFAULT_VALUE_DISPLAYS[event.type]
   }
 
+  // for actions with error, select the result to show the error.
+  if (valueDisplay === "state" && event["error"]) {
+    return "result"
+  }
+
   return valueDisplay
 }

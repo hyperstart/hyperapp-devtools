@@ -35,6 +35,24 @@ function Pane(props: PaneProps, value: any) {
   )
 }
 
+function ErrorPane(props: PaneProps, error: any) {
+  if (error instanceof Error) {
+    return (
+      <div class="object-details-pane scrollable">
+        <pre>{error.stack}</pre>
+      </div>
+    )
+  }
+  if (typeof error === "string") {
+    return (
+      <div class="object-details-pane scrollable">
+        <pre>{error}</pre>
+      </div>
+    )
+  }
+  return Pane(props, error)
+}
+
 function PaneData(props: PaneProps) {
   const event = props.event
   if (event.type === "action") {
@@ -46,9 +64,15 @@ function PaneData(props: PaneProps) {
 function PaneResult(props: PaneProps) {
   const event = props.event
   if (event.type === "action") {
+    if (event.error) {
+      return ErrorPane(props, event.error)
+    }
     return Pane(props, event.result)
   }
   if (event.type === "function") {
+    if (event.error) {
+      return ErrorPane(props, event.error)
+    }
     return Pane(props, event.result)
   }
   throw new Error(`Expected action or function event but got: ${event.type}`)

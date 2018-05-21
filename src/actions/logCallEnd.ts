@@ -1,6 +1,7 @@
 import * as api from "../api"
 import { merge } from "../immutable"
 import { getLatestRunId } from "../selectors"
+import { sanitizeValueDisplay } from "../valueDisplay"
 
 export const logCallEnd = (payload: api.LogCallEndPayload) => (
   state: api.State
@@ -14,6 +15,7 @@ export const logCallEnd = (payload: api.LogCallEndPayload) => (
   run.eventsById = { ...run.eventsById }
   const event = { ...run.eventsById[eventId] }
   run.eventsById[eventId] = event
+  let valueDisplay = state.valueDisplay
   // update the event
   if (event.type === "action" || event.type === "function") {
     if (result) {
@@ -42,5 +44,7 @@ export const logCallEnd = (payload: api.LogCallEndPayload) => (
     eventId
   }
 
-  return { runsById, selectedEvent }
+  valueDisplay = sanitizeValueDisplay(valueDisplay, event)
+
+  return { runsById, selectedEvent, valueDisplay }
 }

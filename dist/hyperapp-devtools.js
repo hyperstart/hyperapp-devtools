@@ -165,6 +165,10 @@ function sanitizeValueDisplay(valueDisplay, event) {
     if (!ALLOWED_VALUE_DISPLAY[event.type][valueDisplay]) {
         return DEFAULT_VALUE_DISPLAYS[event.type];
     }
+    // for actions with error, select the result to show the error.
+    if (valueDisplay === "state" && event["error"]) {
+        return "result";
+    }
     return valueDisplay;
 }
 
@@ -235,7 +239,7 @@ function DebugPaneToolbar(props) {
 var css$8 = ".debug-pane-content {\n  display: flex;\n  flex-direction: row;\n  flex-grow: 1;\n  min-width: 0;\n  min-height: 0; }\n";
 styleInject(css$8);
 
-var css$10 = ".object-details-pane {\n  flex: 0 0 60%;\n  border: 1px solid #697080;\n  margin: 0.1rem; }\n  .object-details-pane pre {\n    margin: 0rem; }\n";
+var css$10 = ".object-details-pane {\n  flex: 0 0 60%;\n  border: 1px solid #697080;\n  margin: 0.1rem; }\n  .object-details-pane pre {\n    margin: 0rem 0.2rem;\n    font-family: \"Roboto Mono\", monospace;\n    font-size: 0.7rem;\n    line-height: 1rem; }\n";
 styleInject(css$10);
 
 var css$12 = "@charset \"UTF-8\";\n._object-view {\n  display: flex;\n  flex-grow: 1;\n  overflow: auto;\n  color: #c0c5ce;\n  white-space: nowrap;\n  background: #2b303b;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 0.8rem;\n  line-height: 1rem; }\n  ._object-view .-row {\n    padding: 0 0 0 2ch; }\n    ._object-view .-row:not(:last-of-type)::after {\n      content: \",\"; }\n  ._object-view .-key {\n    color: #bf616a; }\n    ._object-view .-key::after {\n      color: #c0c5ce;\n      content: \": \"; }\n  ._object-view .-null::before {\n    color: #d08770;\n    content: \"null\"; }\n  ._object-view .-array::after {\n    content: \"]\"; }\n  ._object-view .-array::before {\n    content: \"[\"; }\n  ._object-view .-boolean {\n    color: #96b5b4; }\n  ._object-view .-function::before {\n    content: \"ƒ\"; }\n  ._object-view .-number {\n    color: #ebcb8b; }\n  ._object-view .-object::after {\n    content: \"}\"; }\n  ._object-view .-object::before {\n    content: \"{\"; }\n  ._object-view .-string {\n    color: #a3be8c; }\n    ._object-view .-string::after {\n      content: \"'\"; }\n    ._object-view .-string::before {\n      content: \"'\"; }\n  ._object-view .-undefined::before {\n    color: #d08770;\n    content: \"undefined\"; }\n  ._object-view .-expand::before {\n    content: \"+\"; }\n  ._object-view .-collapse::before {\n    content: \"-\"; }\n";
@@ -371,6 +375,17 @@ function Pane(props, value) {
     }
     return (h("div", { class: "object-details-pane scrollable" }, ObjectView({ value: value, expanded: expanded })));
 }
+function ErrorPane(props, error) {
+    if (error instanceof Error) {
+        return (h("div", { class: "object-details-pane scrollable" },
+            h("pre", null, error.stack)));
+    }
+    if (typeof error === "string") {
+        return (h("div", { class: "object-details-pane scrollable" },
+            h("pre", null, error)));
+    }
+    return Pane(props, error);
+}
 function PaneData(props) {
     var event = props.event;
     if (event.type === "action") {
@@ -381,9 +396,15 @@ function PaneData(props) {
 function PaneResult(props) {
     var event = props.event;
     if (event.type === "action") {
+        if (event.error) {
+            return ErrorPane(props, event.error);
+        }
         return Pane(props, event.result);
     }
     if (event.type === "function") {
+        if (event.error) {
+            return ErrorPane(props, event.error);
+        }
         return Pane(props, event.result);
     }
     throw new Error("Expected action or function event but got: " + event.type);
@@ -788,6 +809,7 @@ var logCallEnd = function (payload) { return function (state) {
     run.eventsById = __assign({}, run.eventsById);
     var event = __assign({}, run.eventsById[eventId]);
     run.eventsById[eventId] = event;
+    var valueDisplay = state.valueDisplay;
     // update the event
     if (event.type === "action" || event.type === "function") {
         if (result) {
@@ -812,7 +834,8 @@ var logCallEnd = function (payload) { return function (state) {
         runId: run.id,
         eventId: eventId
     };
-    return { runsById: runsById, selectedEvent: selectedEvent };
+    valueDisplay = sanitizeValueDisplay(valueDisplay, event);
+    return { runsById: runsById, selectedEvent: selectedEvent, valueDisplay: valueDisplay };
 }; };
 
 function getEvent(state, run, payload) {
