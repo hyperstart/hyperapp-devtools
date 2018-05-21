@@ -1,0 +1,8 @@
+@import "variables";
+
+svg {
+  margin: 0rem 0.2rem;
+  path {
+    fill: $text-color;
+  }
+}

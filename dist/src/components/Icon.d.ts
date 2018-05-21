@@ -1,3 +1,4 @@
+import "./Icon.scss";
 export declare type IconName = "caret-right" | "caret-bottom" | "cross" | "empty";
 export interface IconProps {
     name: IconName;

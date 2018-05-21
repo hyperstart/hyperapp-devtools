@@ -75,7 +75,7 @@ function styleInject(css, ref) {
   }
 }
 
-var css = ".hyperapp-devtools {\n  font-size: 1rem;\n  line-height: 1.25rem; }\n  .hyperapp-devtools button {\n    border: 1px solid #697080;\n    color: #dbdbdb;\n    background-color: #2b303b;\n    border-radius: 0.2rem;\n    margin: 0 0.1rem;\n    padding: 2px 7px;\n    font-size: 0.8rem; }\n    .hyperapp-devtools button.selected {\n      background: #46516b; }\n      .hyperapp-devtools button.selected:hover {\n        background: #46516b; }\n      .hyperapp-devtools button.selected:active {\n        background: #3c455a; }\n      .hyperapp-devtools button.selected:focus {\n        outline: 0; }\n    .hyperapp-devtools button:hover {\n      cursor: pointer;\n      background: #373f4e; }\n    .hyperapp-devtools button:active {\n      background: #3c455a; }\n    .hyperapp-devtools button:focus {\n      outline: 0; }\n    .hyperapp-devtools button[disabled] {\n      border-color: #a0a0a0;\n      color: #a0a0a0;\n      background-color: #4d5158; }\n      .hyperapp-devtools button[disabled]:hover {\n        cursor: not-allowed; }\n  .hyperapp-devtools .scrollable {\n    display: flex;\n    overflow: auto; }\n    .hyperapp-devtools .scrollable .scrollable-content {\n      display: flex;\n      min-height: 0px;\n      min-width: 0px;\n      flex-grow: 1; }\n\n.devtools-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100vh;\n  width: 100vw;\n  z-index: 10; }\n  .devtools-overlay.align-right {\n    width: 50vw;\n    left: 50vw; }\n  .devtools-overlay.align-bottom {\n    height: 50vh;\n    top: 50vh; }\n";
+var css = ".hyperapp-devtools {\n  font-size: 1rem;\n  line-height: 1.25rem; }\n  .hyperapp-devtools button {\n    border: 1px solid #697080;\n    color: #dbdbdb;\n    background-color: #2b303b;\n    border-radius: 0.2rem;\n    margin: 0 0.1rem;\n    padding: 2px 7px;\n    font-size: 0.8rem; }\n    .hyperapp-devtools button.selected {\n      background: #4c5875; }\n      .hyperapp-devtools button.selected:hover {\n        background: #4c5875; }\n      .hyperapp-devtools button.selected:active {\n        background: #3e485e; }\n      .hyperapp-devtools button.selected:focus {\n        outline: 0; }\n    .hyperapp-devtools button:hover {\n      cursor: pointer;\n      background: #394252; }\n    .hyperapp-devtools button:active {\n      background: #3e485e; }\n    .hyperapp-devtools button:focus {\n      outline: 0; }\n    .hyperapp-devtools button[disabled] {\n      border-color: #a0a0a0;\n      color: #a0a0a0;\n      background-color: #4d5158; }\n      .hyperapp-devtools button[disabled]:hover {\n        cursor: not-allowed; }\n  .hyperapp-devtools .scrollable {\n    display: flex;\n    overflow: auto; }\n    .hyperapp-devtools .scrollable .scrollable-content {\n      display: flex;\n      min-height: 0px;\n      min-width: 0px;\n      flex-grow: 1; }\n\n.devtools-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100vh;\n  width: 100vw;\n  z-index: 10; }\n  .devtools-overlay.align-right {\n    width: 50vw;\n    left: 50vw; }\n  .devtools-overlay.align-bottom {\n    height: 50vh;\n    top: 50vh; }\n";
 styleInject(css);
 
 var css$2 = ".debugger-options {\n  display: flex;\n  flex-shrink: 0; }\n  .debugger-options .option {\n    flex-grow: 1;\n    padding-left: 0.5rem;\n    padding-right: 0.5rem; }\n    .debugger-options .option select {\n      width: 100%; }\n";
@@ -193,6 +193,9 @@ function DebuggerOptions(props) {
 var css$4 = ".debug-pane-toolbar {\n  display: flex;\n  justify-content: space-between;\n  flex-shrink: 0;\n  width: 100%;\n  border-bottom: 1px solid #697080; }\n  .debug-pane-toolbar .toolbar-section {\n    align-items: center;\n    display: flex;\n    flex: 1 0 0; }\n    .debug-pane-toolbar .toolbar-section:not(:first-child):last-child {\n      justify-content: flex-end; }\n  .debug-pane-toolbar .view-buttons {\n    margin: 0.1rem; }\n  .debug-pane-toolbar .travel-button {\n    margin: 0.1rem;\n    align-items: center;\n    display: flex;\n    flex: 0 0 auto; }\n  .debug-pane-toolbar .close-button {\n    margin: 0.1rem 0.3rem; }\n";
 styleInject(css$4);
 
+var css$6 = "svg {\n  margin: 0rem 0.2rem; }\n  svg path {\n    fill: #dbdbdb; }\n";
+styleInject(css$6);
+
 var Svg = function (d, transform) { return function (props) {
     return (h("svg", { xmlns: "http://www.w3.org/2000/svg", width: "8", height: "8", viewBox: "0 0 8 8", class: props.class || "", onclick: props.onclick },
         h("path", { d: d, transform: transform })));
@@ -229,14 +232,14 @@ function DebugPaneToolbar(props) {
             h(Icon, { name: "cross", onclick: function () { return actions.showPane(false); } }))));
 }
 
-var css$6 = ".debug-pane-content {\n  display: flex;\n  flex-direction: row;\n  flex-grow: 1;\n  min-width: 0;\n  min-height: 0; }\n";
-styleInject(css$6);
-
-var css$8 = ".object-details-pane {\n  flex: 0 0 60%;\n  border: 1px solid #697080;\n  margin: 0.1rem; }\n  .object-details-pane pre {\n    margin: 0rem; }\n";
+var css$8 = ".debug-pane-content {\n  display: flex;\n  flex-direction: row;\n  flex-grow: 1;\n  min-width: 0;\n  min-height: 0; }\n";
 styleInject(css$8);
 
-var css$10 = "@charset \"UTF-8\";\n._object-view {\n  display: flex;\n  flex-grow: 1;\n  overflow: auto;\n  color: #c0c5ce;\n  white-space: nowrap;\n  background: #2b303b;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 0.8rem;\n  line-height: 1rem; }\n  ._object-view .-row {\n    padding: 0 0 0 2ch; }\n    ._object-view .-row:not(:last-of-type)::after {\n      content: \",\"; }\n  ._object-view .-key {\n    color: #bf616a; }\n    ._object-view .-key::after {\n      color: #c0c5ce;\n      content: \": \"; }\n  ._object-view .-null::before {\n    color: #d08770;\n    content: \"null\"; }\n  ._object-view .-array::after {\n    content: \"]\"; }\n  ._object-view .-array::before {\n    content: \"[\"; }\n  ._object-view .-boolean {\n    color: #96b5b4; }\n  ._object-view .-function::before {\n    content: \"ƒ\"; }\n  ._object-view .-number {\n    color: #ebcb8b; }\n  ._object-view .-object::after {\n    content: \"}\"; }\n  ._object-view .-object::before {\n    content: \"{\"; }\n  ._object-view .-string {\n    color: #a3be8c; }\n    ._object-view .-string::after {\n      content: \"'\"; }\n    ._object-view .-string::before {\n      content: \"'\"; }\n  ._object-view .-undefined::before {\n    color: #d08770;\n    content: \"undefined\"; }\n  ._object-view .-expand::before {\n    content: \"+\"; }\n  ._object-view .-collapse::before {\n    content: \"-\"; }\n";
+var css$10 = ".object-details-pane {\n  flex: 0 0 60%;\n  border: 1px solid #697080;\n  margin: 0.1rem; }\n  .object-details-pane pre {\n    margin: 0rem; }\n";
 styleInject(css$10);
+
+var css$12 = "@charset \"UTF-8\";\n._object-view {\n  display: flex;\n  flex-grow: 1;\n  overflow: auto;\n  color: #c0c5ce;\n  white-space: nowrap;\n  background: #2b303b;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 0.8rem;\n  line-height: 1rem; }\n  ._object-view .-row {\n    padding: 0 0 0 2ch; }\n    ._object-view .-row:not(:last-of-type)::after {\n      content: \",\"; }\n  ._object-view .-key {\n    color: #bf616a; }\n    ._object-view .-key::after {\n      color: #c0c5ce;\n      content: \": \"; }\n  ._object-view .-null::before {\n    color: #d08770;\n    content: \"null\"; }\n  ._object-view .-array::after {\n    content: \"]\"; }\n  ._object-view .-array::before {\n    content: \"[\"; }\n  ._object-view .-boolean {\n    color: #96b5b4; }\n  ._object-view .-function::before {\n    content: \"ƒ\"; }\n  ._object-view .-number {\n    color: #ebcb8b; }\n  ._object-view .-object::after {\n    content: \"}\"; }\n  ._object-view .-object::before {\n    content: \"{\"; }\n  ._object-view .-string {\n    color: #a3be8c; }\n    ._object-view .-string::after {\n      content: \"'\"; }\n    ._object-view .-string::before {\n      content: \"'\"; }\n  ._object-view .-undefined::before {\n    color: #d08770;\n    content: \"undefined\"; }\n  ._object-view .-expand::before {\n    content: \"+\"; }\n  ._object-view .-collapse::before {\n    content: \"-\"; }\n";
+styleInject(css$12);
 
 // this file is taken from https://raw.githubusercontent.com/Mytrill/hyperapp-object-view
 // TODO: replace by the real hyperapp-object-view once Whaaley merge the PR :)
@@ -431,14 +434,14 @@ function ObjectDetailsPane(props) {
     }
 }
 
-var css$12 = ".runs-pane {\n  flex: 0 0 40%;\n  border: 1px solid #697080;\n  margin: 0.1rem;\n  align-items: stretch; }\n  .runs-pane .runs-pane-runs {\n    margin: 0.2rem 0rem 0.4rem 0.2rem;\n    padding: 0; }\n";
-styleInject(css$12);
-
-var css$14 = ".run-pane-item {\n  list-style-type: none;\n  width: 100%; }\n  .run-pane-item h2 {\n    font-size: 1.2rem;\n    margin: 0.2rem 0 0.2rem 0; }\n";
+var css$14 = ".runs-pane {\n  flex: 0 0 40%;\n  border: 1px solid #697080;\n  margin: 0.1rem;\n  align-items: stretch; }\n  .runs-pane .runs-pane-runs {\n    margin: 0.2rem 0rem 0.4rem 0.2rem;\n    padding: 0; }\n";
 styleInject(css$14);
 
-var css$16 = ".run-event-count {\n  color: #ff6600; }\n\n.run-event {\n  margin: 0rem;\n  width: 100%; }\n  .run-event .item-link {\n    display: block;\n    color: #dbdbdb; }\n    .run-event .item-link .error {\n      color: #ff0000; }\n    .run-event .item-link .warn {\n      color: #ff6600; }\n    .run-event .item-link:hover {\n      background-color: #373f4e;\n      text-decoration: none;\n      color: #dbdbdb; }\n    .run-event .item-link:focus {\n      text-decoration: none; }\n    .run-event .item-link.selected {\n      background-color: #46516b;\n      font-weight: bold;\n      color: #dbdbdb; }\n  .run-event .icon:hover {\n    color: #9f9eff; }\n";
+var css$16 = ".run-pane-item {\n  list-style-type: none;\n  width: 100%; }\n  .run-pane-item h2 {\n    font-size: 1.2rem;\n    margin: 0.2rem 0 0.2rem 0; }\n";
 styleInject(css$16);
+
+var css$18 = ".run-event-count {\n  color: #ff6600; }\n\n.run-event {\n  margin: 0rem;\n  width: 100%; }\n  .run-event .item-link {\n    display: block;\n    color: #dbdbdb; }\n    .run-event .item-link .error {\n      color: #ff0000; }\n    .run-event .item-link .warn {\n      color: #ff6600; }\n    .run-event .item-link:hover {\n      background-color: #394252;\n      text-decoration: none;\n      color: #dbdbdb; }\n    .run-event .item-link:focus {\n      text-decoration: none; }\n    .run-event .item-link.selected {\n      background-color: #4c5875;\n      font-weight: bold;\n      color: #dbdbdb; }\n  .run-event .icon:hover {\n    color: #9f9eff; }\n";
+styleInject(css$18);
 
 // # Helpers
 function getRepeatText(run, events, index) {
@@ -554,8 +557,8 @@ function RunEvent(props) {
             })));
 }
 
-var css$18 = ".run-event-list {\n  list-style-type: none;\n  margin: 0 0 0 0.6rem;\n  padding: 0; }\n";
-styleInject(css$18);
+var css$20 = ".run-event-list {\n  list-style-type: none;\n  margin: 0 0 0 0.6rem;\n  padding: 0; }\n";
+styleInject(css$20);
 
 function RunEventList(props) {
     var state = props.state, actions = props.actions, run = props.run, events = props.events;
@@ -616,8 +619,8 @@ function DebugPaneContent(props) {
         ObjectDetailsPane({ state: state, actions: actions })));
 }
 
-var css$20 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #2b303b;\n  border: 1px solid #697080;\n  color: #dbdbdb; }\n  .debug-pane a {\n    text-decoration: none; }\n";
-styleInject(css$20);
+var css$22 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #2b303b;\n  border: 1px solid #697080;\n  color: #dbdbdb; }\n  .debug-pane a {\n    text-decoration: none; }\n";
+styleInject(css$22);
 
 function DebugPane(props) {
     var state = props.state, actions = props.actions;
@@ -627,8 +630,8 @@ function DebugPane(props) {
         DebugPaneContent({ state: state, actions: actions })));
 }
 
-var css$22 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n";
-styleInject(css$22);
+var css$24 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n";
+styleInject(css$24);
 
 function TogglePaneButton(props) {
     var state = props.state, actions = props.actions;

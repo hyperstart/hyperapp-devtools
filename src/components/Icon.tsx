@@ -1,5 +1,7 @@
 import { h } from "hyperapp"
 
+import "./Icon.scss"
+
 // manually imported from open-iconic
 
 interface SvgProps {
