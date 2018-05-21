@@ -122,10 +122,16 @@ function getLatestRun(state) {
 function canTravelToSelectedEvent(state) {
     var run = getLatestRun(state);
     var event = getSelectedEvent(state);
-    if (!run || !event || event.type !== "action") {
+    if (!run || !event) {
         return false;
     }
-    return event.stateAfter && event.stateAfter !== run.currentState;
+    if (event.type === "action") {
+        return event.stateAfter && event.stateAfter !== run.currentState;
+    }
+    if (event.type === "init") {
+        return event.state !== run.currentState;
+    }
+    return false;
 }
 
 var ALLOWED_VALUE_DISPLAY = {

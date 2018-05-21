@@ -50,9 +50,15 @@ export function getLatestRun(state: State): Run {
 export function canTravelToSelectedEvent(state: State): boolean {
   const run = getLatestRun(state)
   const event = getSelectedEvent(state)
-  if (!run || !event || event.type !== "action") {
+  if (!run || !event) {
     return false
   }
 
-  return event.stateAfter && event.stateAfter !== run.currentState
+  if (event.type === "action") {
+    return event.stateAfter && event.stateAfter !== run.currentState
+  }
+  if (event.type === "init") {
+    return event.state !== run.currentState
+  }
+  return false
 }
