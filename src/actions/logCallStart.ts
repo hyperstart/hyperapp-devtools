@@ -1,5 +1,5 @@
 import * as api from "../api"
-import { getRun } from "../selectors"
+import { getLatestRunId } from "../selectors"
 
 function getEvent(
   state: api.State,
@@ -34,7 +34,7 @@ function getEvent(
 export const logCallStart = (payload: api.LogCallStartPayload) => (
   state: api.State
 ): Partial<api.State> => {
-  const { runId, eventId } = payload
+  const { runId = getLatestRunId(state), eventId } = payload
   const runsById = { ...state.runsById }
   const run = { ...runsById[runId] }
   runsById[runId] = run

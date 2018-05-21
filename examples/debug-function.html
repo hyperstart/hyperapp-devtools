@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Counter example debug function</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="hyperapp.js"></script>
+  <script src="hyperapp-devtools.js"></script>
+</head>
+
+<body>
+  <div id="app" />
+  <br />
+  <br />
+  <a href="index.html">&nbsp;Back to index</a>
+
+  <script>
+    const h = hyperapp.h
+
+    const state = {
+      count: 0
+    }
+
+    // a wrap a function in debug(), set a name if the function is anonymous.
+    const add = devtools.debug("add", (count, value) => ({ count: count + value }))
+
+    const actions = {
+      down: () => ({ count }) => add(count, -1),
+      up: () => ({ count }) => add(count, 1),
+      nullAction: null
+    }
+
+    function view(state, actions) {
+      return h("div", { style: { margin: "2rem" } },
+        h("h1", { style: { margin: "0.5rem" } }, state.count),
+        h("button", { onclick: actions.down }, "-"),
+        h("button", { onclick: actions.up }, "+"),
+      )
+    }
+
+    devtools.devtools(hyperapp.app)(state, actions, view, document.getElementById("app"))
+
+  </script>
+
+</body>
+
+</html>

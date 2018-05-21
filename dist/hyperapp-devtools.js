@@ -4,23 +4,6 @@
 	(factory((global.devtools = {})));
 }(this, (function (exports) { 'use strict';
 
-function debug(value) {
-    if (typeof value === "function") {
-        return function () {
-            // const actions = getDevtoolsApp()
-            // if (actions) {
-            //   actions.logFunctionEvent("Yay!")
-            // }
-            var result = value(arguments);
-            // if (actions) {
-            //   actions.logFunctionEvent("Done!")
-            // }
-            return result;
-        };
-    }
-    return value;
-}
-
 var ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 var SIZE = 16;
 var rand = function () { return ALPHABET[Math.floor(Math.random() * ALPHABET.length)]; };
@@ -95,25 +78,8 @@ function styleInject(css, ref) {
 var css = ".hyperapp-devtools {\n  font-size: 1rem;\n  line-height: 1.25rem; }\n  .hyperapp-devtools button {\n    border: 1px solid #000000;\n    color: #000000;\n    background-color: #ffffff;\n    border-radius: 0.2rem;\n    margin: 0 0.1rem;\n    padding: 2px 7px;\n    font-size: 0.8rem; }\n    .hyperapp-devtools button.selected {\n      background: #9fbbdf; }\n      .hyperapp-devtools button.selected:hover {\n        background: #9fbbdf; }\n      .hyperapp-devtools button.selected:active {\n        background: #bcd7fc; }\n      .hyperapp-devtools button.selected:focus {\n        outline: 0; }\n    .hyperapp-devtools button:hover {\n      cursor: pointer;\n      background: #d3e5fd; }\n    .hyperapp-devtools button:active {\n      background: #bcd7fc; }\n    .hyperapp-devtools button:focus {\n      outline: 0; }\n    .hyperapp-devtools button[disabled] {\n      border-color: #666666;\n      color: #666666;\n      background-color: #dddddd; }\n      .hyperapp-devtools button[disabled]:hover {\n        cursor: not-allowed; }\n  .hyperapp-devtools .scrollable {\n    display: flex;\n    overflow: auto; }\n    .hyperapp-devtools .scrollable .scrollable-content {\n      display: flex;\n      min-height: 0px;\n      min-width: 0px;\n      flex-grow: 1; }\n\n.devtools-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100vh;\n  width: 100vw;\n  z-index: 10; }\n  .devtools-overlay.align-right {\n    width: 50vw;\n    left: 50vw; }\n  .devtools-overlay.align-bottom {\n    height: 50vh;\n    top: 50vh; }\n";
 styleInject(css);
 
-var css$2 = ".debugger-options {\n  display: flex;\n  flex-shrink: 0; }\n  .debugger-options .option {\n    flex-grow: 1;\n    padding-left: 0.5rem;\n    padding-right: 0.5rem; }\n";
+var css$2 = ".debugger-options {\n  display: flex;\n  flex-shrink: 0; }\n  .debugger-options .option {\n    flex-grow: 1;\n    padding-left: 0.5rem;\n    padding-right: 0.5rem; }\n    .debugger-options .option select {\n      width: 100%; }\n";
 styleInject(css$2);
-
-function DebuggerOptions(props) {
-    var state = props.state, actions = props.actions;
-    return (h("div", { class: "debugger-options" },
-        h("div", { class: "option" },
-            h("input", { id: "debugger-group-actions-cb", type: "checkbox", checked: state.collapseRepeatingEvents, onchange: actions.toggleCollapseRepeatingEvents }),
-            h("label", { for: "debugger-group-actions-cb" }, "Group repeating actions")),
-        h("div", { class: "option" },
-            h("select", { onchange: function (e) { return actions.setValueDisplay(e.target.value); }, value: state.valueDisplay },
-                h("option", { value: "state" }, "Show Full State"),
-                h("option", { value: "result" }, "Show Action Result"),
-                h("option", { value: "data" }, "Show Action Data"),
-                h("option", { value: "debugger-state" }, "Show Debugger Own State")))));
-}
-
-var css$4 = ".debug-pane-toolbar {\n  display: flex;\n  justify-content: space-between;\n  flex-shrink: 0;\n  width: 100%;\n  border-bottom: 1px solid #000000; }\n  .debug-pane-toolbar .toolbar-section {\n    align-items: center;\n    display: flex;\n    flex: 1 0 0; }\n    .debug-pane-toolbar .toolbar-section:not(:first-child):last-child {\n      justify-content: flex-end; }\n  .debug-pane-toolbar .view-buttons {\n    margin: 0.1rem; }\n  .debug-pane-toolbar .travel-button {\n    margin: 0.1rem;\n    align-items: center;\n    display: flex;\n    flex: 0 0 auto; }\n  .debug-pane-toolbar .close-button {\n    margin: 0.1rem 0.3rem; }\n";
-styleInject(css$4);
 
 function isValueDisplayExpanded(state, path) {
     var expanded = state.detailsPaneExpandedPaths[path];
@@ -122,8 +88,18 @@ function isValueDisplayExpanded(state, path) {
     }
     return path.split(".").length < 4;
 }
+function getLatestRunId(state) {
+    var runs = state.runs;
+    if (runs.length > 0) {
+        return runs[runs.length - 1];
+    }
+    throw new Error("No run found.");
+}
 function getRun(state, runId) {
-    return state.runsById[runId] || null;
+    var run = state.runsById[runId];
+    if (!run)
+        throw new Error("No run with id =" + runId);
+    return run;
 }
 function isSelectedEvent(state, event) {
     var selected = state.selectedEvent;
@@ -141,10 +117,7 @@ function getSelectedEvent(state, event) {
     return state.runsById[event.runId].eventsById[event.eventId];
 }
 function getLatestRun(state) {
-    if (state.runs.length === 0) {
-        return null;
-    }
-    return state.runsById[state.runs.length - 1];
+    return state.runsById[getLatestRunId(state)];
 }
 function canTravelToSelectedEvent(state) {
     var run = getLatestRun(state);
@@ -154,6 +127,71 @@ function canTravelToSelectedEvent(state) {
     }
     return event.stateAfter && event.stateAfter !== run.currentState;
 }
+
+var ALLOWED_VALUE_DISPLAY = {
+    action: {
+        state: true,
+        result: true,
+        data: true,
+        "debugger-state": true
+    },
+    function: {
+        args: true,
+        result: true,
+        "debugger-state": true
+    },
+    init: {
+        state: true,
+        "debugger-state": true
+    },
+    message: {
+        message: true,
+        "debugger-state": true
+    }
+};
+var VALUE_DISPLAYS = {
+    action: ["state", "result", "data", "debugger-state"],
+    function: ["args", "result", "debugger-state"],
+    init: ["state", "debugger-state"],
+    message: ["message", "debugger-state"]
+};
+var DEFAULT_VALUE_DISPLAYS = {
+    action: "state",
+    function: "result",
+    init: "state",
+    message: "message"
+};
+function sanitizeValueDisplay(valueDisplay, event) {
+    if (!ALLOWED_VALUE_DISPLAY[event.type][valueDisplay]) {
+        return DEFAULT_VALUE_DISPLAYS[event.type];
+    }
+    return valueDisplay;
+}
+
+var LABELS = {
+    state: "Show full state",
+    result: "Show action or function result",
+    args: "Show function arguments",
+    message: "Show message",
+    data: "Show action data",
+    "debugger-state": "Show debugger full state (for debug only)"
+};
+function ValueDisplaySelect(props) {
+    var state = props.state, actions = props.actions;
+    var event = getSelectedEvent(state);
+    return (h("select", { onchange: function (e) { return actions.setValueDisplay(e.target.value); }, value: state.valueDisplay }, VALUE_DISPLAYS[event.type].map(function (value) { return (h("option", { value: value }, LABELS[value])); })));
+}
+function DebuggerOptions(props) {
+    var state = props.state, actions = props.actions;
+    return (h("div", { class: "debugger-options" },
+        h("div", { class: "option" },
+            h("input", { id: "debugger-group-actions-cb", type: "checkbox", checked: state.collapseRepeatingEvents, onchange: actions.toggleCollapseRepeatingEvents }),
+            h("label", { for: "debugger-group-actions-cb" }, "Group repeating actions")),
+        h("div", { class: "option" }, ValueDisplaySelect(props))));
+}
+
+var css$4 = ".debug-pane-toolbar {\n  display: flex;\n  justify-content: space-between;\n  flex-shrink: 0;\n  width: 100%;\n  border-bottom: 1px solid #000000; }\n  .debug-pane-toolbar .toolbar-section {\n    align-items: center;\n    display: flex;\n    flex: 1 0 0; }\n    .debug-pane-toolbar .toolbar-section:not(:first-child):last-child {\n      justify-content: flex-end; }\n  .debug-pane-toolbar .view-buttons {\n    margin: 0.1rem; }\n  .debug-pane-toolbar .travel-button {\n    margin: 0.1rem;\n    align-items: center;\n    display: flex;\n    flex: 0 0 auto; }\n  .debug-pane-toolbar .close-button {\n    margin: 0.1rem 0.3rem; }\n";
+styleInject(css$4);
 
 var Svg = function (d, transform) { return function (props) {
     return (h("svg", { xmlns: "http://www.w3.org/2000/svg", width: "8", height: "8", viewBox: "0 0 8 8", class: props.class || "", onclick: props.onclick },
@@ -691,8 +729,46 @@ function assign(target, obj, obj2) {
     return target;
 }
 
+var FUNCTIONS = {};
+function registerDebuggedFunction(name, fn) {
+    if (FUNCTIONS[name]) {
+        throw new Error("There is already a function registered with name \"" + name + "\".");
+    }
+    FUNCTIONS[name] = fn;
+}
+
+function getRegistered(name) {
+    var result = FUNCTIONS[name];
+    if (!result)
+        throw new Error("No function registered with name " + name + ".");
+    return result;
+}
+
+function executeAction(payload, state) {
+    var runId = payload.runId, name = payload.name, args = payload.args;
+    var run = getRun(state, runId);
+    var action = get(run.interop, name.split("."));
+    if (!action)
+        throw new Error("No action found with name \"" + name + "\".");
+    action(args[0]);
+}
+function executeFunction(payload, state) {
+    var name = payload.name, args = payload.args;
+    var fn = getRegistered(name);
+    fn.apply(void 0, args);
+}
+var execute = function (payload) { return function (state) {
+    var type = payload.type;
+    if (type === "action") {
+        executeAction(payload, state);
+    }
+    else {
+        executeFunction(payload, state);
+    }
+}; };
+
 var logCallEnd = function (payload) { return function (state) {
-    var runId = payload.runId, eventId = payload.eventId, result = payload.result, error = payload.error;
+    var _a = payload.runId, runId = _a === void 0 ? getLatestRunId(state) : _a, eventId = payload.eventId, result = payload.result, error = payload.error;
     var runsById = __assign({}, state.runsById);
     var run = __assign({}, runsById[runId]);
     runsById[runId] = run;
@@ -707,7 +783,9 @@ var logCallEnd = function (payload) { return function (state) {
                 // update the run's current state
                 var path = event.name.split(".");
                 path.pop();
-                event.stateAfter = merge(event.stateBefore, path, event.result);
+                var stateAfter = merge(event.stateBefore, path, event.result);
+                event.stateAfter = stateAfter;
+                run.currentState = stateAfter;
             }
         }
         if (error) {
@@ -717,7 +795,11 @@ var logCallEnd = function (payload) { return function (state) {
     // update the current event of the run
     run.currentEvent =
         eventId === run.currentEvent ? event.parent : run.currentEvent;
-    return { runsById: runsById };
+    var selectedEvent = {
+        runId: run.id,
+        eventId: eventId
+    };
+    return { runsById: runsById, selectedEvent: selectedEvent };
 }; };
 
 function getEvent(state, run, payload) {
@@ -745,7 +827,7 @@ function getEvent(state, run, payload) {
     };
 }
 var logCallStart = function (payload) { return function (state) {
-    var runId = payload.runId, eventId = payload.eventId;
+    var _a = payload.runId, runId = _a === void 0 ? getLatestRunId(state) : _a, eventId = payload.eventId;
     var runsById = __assign({}, state.runsById);
     var run = __assign({}, runsById[runId]);
     runsById[runId] = run;
@@ -819,39 +901,6 @@ var logMessage = function (payload) { return function (state) {
     var _a;
 }; };
 
-var ALLOWED_VALUE_DISPLAY = {
-    action: {
-        state: true,
-        result: true,
-        data: true,
-        "debugger-state": true
-    },
-    function: {
-        args: true,
-        result: true,
-        "debugger-state": true
-    },
-    init: {
-        state: true,
-        "debugger-state": true
-    },
-    message: {
-        message: true,
-        "debugger-state": true
-    }
-};
-var DEFAULT_VALUE_DISPLAYS = {
-    action: "state",
-    function: "result",
-    init: "state",
-    message: "message"
-};
-function sanitizeValueDisplay(valueDisplay, event) {
-    if (!ALLOWED_VALUE_DISPLAY[event.type][valueDisplay]) {
-        return DEFAULT_VALUE_DISPLAYS[event.type];
-    }
-    return valueDisplay;
-}
 var select = function (selectedEvent) { return function (state) {
     var event = getSelectedEvent(state, selectedEvent);
     return {
@@ -928,6 +977,7 @@ var toggleRun = function (id) { return function (state) {
 
 var actions = Object.freeze({
 	deleteRun: deleteRun,
+	execute: execute,
 	logCallEnd: logCallEnd,
 	logCallStart: logCallStart,
 	logInit: logInit,
@@ -995,7 +1045,9 @@ function enhanceActions(hoaActions, runId, actions, prefix) {
 }
 
 var devtoolsApp;
-
+function getDevtoolsApp() {
+    return devtoolsApp;
+}
 function devtools(app) {
     var div = document.createElement("div");
     document.body.appendChild(div);
@@ -1015,6 +1067,60 @@ function devtools(app) {
         });
         return interop;
     };
+}
+
+function debugWithoutRegistering(val, name) {
+    if (name === void 0) { name = "(anonymous function)"; }
+    return function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var actions = getDevtoolsApp();
+        var eventId = guid();
+        if (actions) {
+            actions.logCallStart({
+                type: "function",
+                eventId: eventId,
+                name: name,
+                args: args
+            });
+        }
+        try {
+            var result = val.apply(void 0, args);
+            if (actions) {
+                actions.logCallEnd({
+                    eventId: eventId,
+                    result: result
+                });
+            }
+            if (typeof result === "function") {
+                return debugWithoutRegistering(result);
+            }
+            return result;
+        }
+        catch (error) {
+            if (actions) {
+                actions.logCallEnd({
+                    eventId: eventId,
+                    error: error
+                });
+            }
+            throw error;
+        }
+    };
+}
+function debug(nameOrValue, value) {
+    var val = typeof nameOrValue === "string" ? value : nameOrValue;
+    var name = typeof nameOrValue === "string" ? nameOrValue : nameOrValue.name;
+    if (!name) {
+        throw new Error("Please provide a unique name: debug(\"myFn\", () => { ... } or use a named function.");
+    }
+    if (typeof val !== "function") {
+        throw new Error("Can only debug a function but got " + typeof val + ".");
+    }
+    registerDebuggedFunction(name, val);
+    return debugWithoutRegistering(val, name);
 }
 
 exports.devtools = devtools;

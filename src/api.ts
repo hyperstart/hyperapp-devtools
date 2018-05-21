@@ -99,7 +99,8 @@ export interface LogMessagePayload {
 }
 
 export interface LogCallStartPayload {
-  runId: string
+  // use latest if not set.
+  runId?: string
   eventId: string
   type: "function" | "action"
   name: string
@@ -107,7 +108,7 @@ export interface LogCallStartPayload {
 }
 
 export interface LogCallEndPayload {
-  runId: string
+  runId?: string
   eventId: string
   result?: any
   error?: any
@@ -121,6 +122,13 @@ export interface ToggleEventPayload {
 export interface SetDetailsPaneExpandedPayload {
   path: string
   expanded: boolean
+}
+
+export interface ExecutePayload {
+  type: "function" | "action"
+  runId: string
+  name: string
+  args: any[]
 }
 
 export interface Actions {
@@ -137,6 +145,7 @@ export interface Actions {
   setValueDisplay(valueDisplay: ValueDisplay)
   select(action: SelectedEvent | null)
   timeTravel(action: SelectedEvent)
+  execute(payload: ExecutePayload)
   deleteRun(id: string)
 }
 

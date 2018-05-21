@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Counter example with debugger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="hyperapp.js"></script>
+  <script src="hyperapp-devtools.js"></script>
+</head>
+
+<body>
+  <div id="app" />
+  <br />
+  <br />
+  <a href="index.html">&nbsp;Back to index</a>
+
+  <script>
+    const h = hyperapp.h
+
+    const state = {
+      count: 0
+    }
+
+    const actions = {
+      doNothing: () => ({}),
+      throwError: () => {
+        throw new Error("An error occured!")
+      }
+    }
+
+    function view(state, actions) {
+      return h("div", { style: { margin: "2rem" } },
+        h("button", { onclick: actions.doNothing }, "Working action"),
+        h("button", { onclick: actions.throwError }, "Action with error"),
+      )
+    }
+
+    devtools.devtools(hyperapp.app)(state, actions, view, document.getElementById("app"))
+
+  </script>
+
+</body>
+
+</html>

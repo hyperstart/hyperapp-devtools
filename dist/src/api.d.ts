@@ -75,14 +75,14 @@ export interface LogMessagePayload {
     message: any;
 }
 export interface LogCallStartPayload {
-    runId: string;
+    runId?: string;
     eventId: string;
     type: "function" | "action";
     name: string;
     args: any[];
 }
 export interface LogCallEndPayload {
-    runId: string;
+    runId?: string;
     eventId: string;
     result?: any;
     error?: any;
@@ -94,6 +94,12 @@ export interface ToggleEventPayload {
 export interface SetDetailsPaneExpandedPayload {
     path: string;
     expanded: boolean;
+}
+export interface ExecutePayload {
+    type: "function" | "action";
+    runId: string;
+    name: string;
+    args: any[];
 }
 export interface Actions {
     logInit(payload: LogInitPayload): any;
@@ -109,6 +115,7 @@ export interface Actions {
     setValueDisplay(valueDisplay: ValueDisplay): any;
     select(action: SelectedEvent | null): any;
     timeTravel(action: SelectedEvent): any;
+    execute(payload: ExecutePayload): any;
     deleteRun(id: string): any;
 }
 export declare const injectedSetState = "$__SET_STATE";

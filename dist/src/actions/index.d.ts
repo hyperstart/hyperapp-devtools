@@ -1,4 +1,5 @@
 export * from "./deleteRun";
+export * from "./execute";
 export * from "./logCallEnd";
 export * from "./logCallStart";
 export * from "./logInit";
