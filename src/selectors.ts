@@ -9,8 +9,18 @@ export function isValueDisplayExpanded(state: State, path: string): boolean {
   return path.split(".").length < 4
 }
 
-export function getRun(state: State, runId: string): Run | null {
-  return state.runsById[runId] || null
+export function getLatestRunId(state: State): string {
+  const runs = state.runs
+  if (runs.length > 0) {
+    return runs[runs.length - 1]
+  }
+  throw new Error("No run found.")
+}
+
+export function getRun(state: State, runId: string): Run {
+  const run = state.runsById[runId]
+  if (!run) throw new Error(`No run with id =${runId}`)
+  return run
 }
 
 export function isSelectedEvent(state: State, event: AppEvent): boolean {
@@ -33,12 +43,8 @@ export function getSelectedEvent(
   return state.runsById[event.runId].eventsById[event.eventId]
 }
 
-export function getLatestRun(state: State): Run | null {
-  if (state.runs.length === 0) {
-    return null
-  }
-
-  return state.runsById[state.runs.length - 1]
+export function getLatestRun(state: State): Run {
+  return state.runsById[getLatestRunId(state)]
 }
 
 export function canTravelToSelectedEvent(state: State): boolean {
