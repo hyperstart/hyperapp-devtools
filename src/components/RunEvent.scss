@@ -12,6 +12,14 @@
     display: block;
     color: $text-color;
 
+    .error {
+      color: $text-error-color;
+    }
+
+    .warn {
+      color: $text-warn-color;
+    }
+
     &:hover {
       background-color: $bg-color-hover;
       text-decoration: none;

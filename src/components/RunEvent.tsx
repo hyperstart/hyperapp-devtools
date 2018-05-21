@@ -71,6 +71,18 @@ function getDisplayName(event: AppEvent): string {
   }
 }
 
+function getEventClass(event: AppEvent): string {
+  switch (event.type) {
+    case "init":
+      return ""
+    case "action":
+    case "function":
+      return event.error ? "error" : ""
+    case "message":
+      return event.level
+  }
+}
+
 // # ToggleActionItem
 
 interface ToggleEventProps {
@@ -119,11 +131,10 @@ function EventLink(props: EventLinkProps) {
     actions.select({ runId: run.id, eventId: event.id })
   }
 
-  const displayName = getDisplayName(event)
   return (
     <a href="" class={className} onclick={onclick}>
       {ToggleEvent(props)}
-      {displayName}
+      <span class={getEventClass(event)}>{getDisplayName(event)}</span>
       {state.collapseRepeatingEvents && (
         <span class="run-event-count">
           {getRepeatText(run, events, indexInList)}

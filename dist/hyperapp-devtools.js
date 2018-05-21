@@ -437,7 +437,7 @@ styleInject(css$12);
 var css$14 = ".run-pane-item {\n  list-style-type: none;\n  width: 100%; }\n  .run-pane-item h2 {\n    font-size: 1.2rem;\n    margin: 0.2rem 0 0.2rem 0; }\n";
 styleInject(css$14);
 
-var css$16 = ".run-event-count {\n  color: #ff6600; }\n\n.run-event {\n  margin: 0rem;\n  width: 100%; }\n  .run-event .item-link {\n    display: block;\n    color: #000000; }\n    .run-event .item-link:hover {\n      background-color: #d3e5fd;\n      text-decoration: none;\n      color: #000000; }\n    .run-event .item-link:focus {\n      text-decoration: none; }\n    .run-event .item-link.selected {\n      background-color: #9fbbdf;\n      font-weight: bold;\n      color: #000000; }\n  .run-event .icon:hover {\n    color: #3834ff; }\n";
+var css$16 = ".run-event-count {\n  color: #ff6600; }\n\n.run-event {\n  margin: 0rem;\n  width: 100%; }\n  .run-event .item-link {\n    display: block;\n    color: #000000; }\n    .run-event .item-link .error {\n      color: #ff0000; }\n    .run-event .item-link .warn {\n      color: #ff6600; }\n    .run-event .item-link:hover {\n      background-color: #d3e5fd;\n      text-decoration: none;\n      color: #000000; }\n    .run-event .item-link:focus {\n      text-decoration: none; }\n    .run-event .item-link.selected {\n      background-color: #9fbbdf;\n      font-weight: bold;\n      color: #000000; }\n  .run-event .icon:hover {\n    color: #3834ff; }\n";
 styleInject(css$16);
 
 // # Helpers
@@ -494,6 +494,17 @@ function getDisplayName(event) {
             return "[" + event.level + "] " + truncate(event.message);
     }
 }
+function getEventClass(event) {
+    switch (event.type) {
+        case "init":
+            return "";
+        case "action":
+        case "function":
+            return event.error ? "error" : "";
+        case "message":
+            return event.level;
+    }
+}
 function ToggleEvent(props) {
     var actions = props.actions, run = props.run, event = props.event;
     if (!event.children || event.children.length === 0) {
@@ -517,10 +528,9 @@ function EventLink(props) {
         e.preventDefault();
         actions.select({ runId: run.id, eventId: event.id });
     };
-    var displayName = getDisplayName(event);
     return (h("a", { href: "", class: className, onclick: onclick },
         ToggleEvent(props),
-        displayName,
+        h("span", { class: getEventClass(event) }, getDisplayName(event)),
         state.collapseRepeatingEvents && (h("span", { class: "run-event-count" }, getRepeatText(run, events, indexInList)))));
 }
 function RunEvent(props) {
