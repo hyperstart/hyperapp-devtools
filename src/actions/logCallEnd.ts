@@ -1,10 +1,11 @@
 import * as api from "../api"
 import { merge } from "../immutable"
+import { getLatestRunId } from "../selectors"
 
 export const logCallEnd = (payload: api.LogCallEndPayload) => (
   state: api.State
 ): Partial<api.State> => {
-  const { runId, eventId, result, error } = payload
+  const { runId = getLatestRunId(state), eventId, result, error } = payload
 
   const runsById = { ...state.runsById }
   const run = { ...runsById[runId] }
@@ -22,7 +23,9 @@ export const logCallEnd = (payload: api.LogCallEndPayload) => (
         // update the run's current state
         const path = event.name.split(".")
         path.pop()
-        event.stateAfter = merge(event.stateBefore, path, event.result)
+        const stateAfter = merge(event.stateBefore, path, event.result)
+        event.stateAfter = stateAfter
+        run.currentState = stateAfter
       }
     }
     if (error) {
@@ -34,5 +37,10 @@ export const logCallEnd = (payload: api.LogCallEndPayload) => (
   run.currentEvent =
     eventId === run.currentEvent ? event.parent : run.currentEvent
 
-  return { runsById }
+  const selectedEvent: api.SelectedEvent = {
+    runId: run.id,
+    eventId
+  }
+
+  return { runsById, selectedEvent }
 }
