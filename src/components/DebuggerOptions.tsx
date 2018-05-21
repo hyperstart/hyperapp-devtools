@@ -2,7 +2,34 @@ import { h } from "hyperapp"
 
 import "./DebuggerOptions.scss"
 
-import { State, Actions } from "../api"
+import { State, Actions, StringMap } from "../api"
+import { getSelectedEvent } from "../selectors"
+import { VALUE_DISPLAYS } from "../valueDisplay"
+
+const LABELS: StringMap<string> = {
+  state: "Show full state",
+  result: "Show action or function result",
+  args: "Show function arguments",
+  message: "Show message",
+  data: "Show action data",
+  "debugger-state": "Show debugger full state (for debug only)"
+}
+
+function ValueDisplaySelect(props: DebuggerOptionsProps) {
+  const { state, actions } = props
+  const event = getSelectedEvent(state)
+
+  return (
+    <select
+      onchange={e => actions.setValueDisplay(e.target.value)}
+      value={state.valueDisplay}
+    >
+      {VALUE_DISPLAYS[event.type].map(value => (
+        <option value={value}>{LABELS[value]}</option>
+      ))}
+    </select>
+  )
+}
 
 export interface DebuggerOptionsProps {
   state: State
@@ -23,17 +50,7 @@ export function DebuggerOptions(props: DebuggerOptionsProps) {
         />
         <label for="debugger-group-actions-cb">Group repeating actions</label>
       </div>
-      <div class="option">
-        <select
-          onchange={e => actions.setValueDisplay(e.target.value)}
-          value={state.valueDisplay}
-        >
-          <option value="state">Show Full State</option>
-          <option value="result">Show Action Result</option>
-          <option value="data">Show Action Data</option>
-          <option value="debugger-state">Show Debugger Own State</option>
-        </select>
-      </div>
+      <div class="option">{ValueDisplaySelect(props)}</div>
     </div>
   )
 }

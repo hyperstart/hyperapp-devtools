@@ -8,7 +8,7 @@ import * as actions from "./actions"
 import enhanceActions from "./enhanceActions"
 import { injectedSetState } from "./api"
 
-// rewrite the view more permissive than HA to allow for multiple VNode implementation
+// Rewrite the view more permissive than HA to allow for multiple VNode implementations.
 // e.g. the one in HA 1.1.2 and the on in HA 1.2.5
 export interface View {
   (state: any, actions: any): any
