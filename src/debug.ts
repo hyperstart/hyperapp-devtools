@@ -63,7 +63,7 @@ export function debug<T extends Function = any>(
     throw new Error(`Can only debug a function but got ${typeof val}.`)
   }
 
-  registerDebuggedFunction(name, val)
-
-  return debugWithoutRegistering(val, name)
+  const result = debugWithoutRegistering(val, name)
+  registerDebuggedFunction(name, result)
+  return result
 }

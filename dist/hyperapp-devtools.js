@@ -284,123 +284,99 @@ function DebugPaneToolbar(props) {
 var css$8 = ".debug-pane-content {\n  display: flex;\n  flex-direction: row;\n  flex-grow: 1;\n  min-width: 0;\n  min-height: 0; }\n";
 styleInject(css$8);
 
-var css$10 = "@charset \"UTF-8\";\n._object-view {\n  display: flex;\n  flex-grow: 1;\n  overflow: auto;\n  color: #c0c5ce;\n  white-space: nowrap;\n  background: #2b303b;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 0.8rem;\n  line-height: 1rem; }\n  ._object-view .-row {\n    padding: 0 0 0 2ch; }\n    ._object-view .-row:not(:last-of-type)::after {\n      content: \",\"; }\n  ._object-view .-key {\n    color: #bf616a; }\n    ._object-view .-key::after {\n      color: #c0c5ce;\n      content: \": \"; }\n  ._object-view .-null::before {\n    color: #d08770;\n    content: \"null\"; }\n  ._object-view .-array::after {\n    content: \"]\"; }\n  ._object-view .-array::before {\n    content: \"[\"; }\n  ._object-view .-boolean {\n    color: #96b5b4; }\n  ._object-view .-function::before {\n    content: \"ƒ\"; }\n  ._object-view .-number {\n    color: #ebcb8b; }\n  ._object-view .-object::after {\n    content: \"}\"; }\n  ._object-view .-object::before {\n    content: \"{\"; }\n  ._object-view .-string {\n    color: #a3be8c; }\n    ._object-view .-string::after {\n      content: \"'\"; }\n    ._object-view .-string::before {\n      content: \"'\"; }\n  ._object-view .-undefined::before {\n    color: #d08770;\n    content: \"undefined\"; }\n  ._object-view .-expand::before {\n    content: \"+\"; }\n  ._object-view .-collapse::before {\n    content: \"-\"; }\n";
+var css$10 = ".object-view {\n  display: flex;\n  flex-grow: 1;\n  overflow: auto;\n  color: #c0c5ce;\n  white-space: nowrap;\n  background: #2b303b;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 0.8rem;\n  line-height: 1rem; }\n  .object-view div {\n    padding: 0 0 0 2ch; }\n  .object-view .array {\n    cursor: pointer; }\n  .object-view .object {\n    cursor: pointer; }\n  .object-view .key {\n    color: #bf616a; }\n  .object-view .delimiter {\n    color: #c0c5ce; }\n  .object-view .null {\n    color: #d08770; }\n  .object-view .number {\n    color: #ebcb8b; }\n  .object-view .string {\n    color: #a3be8c; }\n  .object-view .undefined {\n    color: #d08770; }\n  .object-view .boolean {\n    color: #96b5b4; }\n";
 styleInject(css$10);
 
-// this file is taken from https://raw.githubusercontent.com/Mytrill/hyperapp-object-view
-// TODO: replace by the real hyperapp-object-view once Whaaley merge the PR :)
-
-function h$1(nodeName, attributes, children) {
-  return {
-    nodeName: nodeName,
-    attributes: attributes,
-    children: Array.isArray(children) ? children : [children]
-  }
+function Delimiter(_a) {
+    var val = _a.val;
+    return h("span", { class: "delimiter" }, val);
 }
-
-function Wrap(data, children) {
-  var key = data.key;
-  return h$1("div", { class: "-row" }, [
-    key && h$1("span", { class: "-key" }, key),
-    children
-  ])
+function Obj(props) {
+    var value = props.value, path = props.path, expanded = props.expanded;
+    var keys = Object.keys(value);
+    var collapsed = !expanded(path);
+    var onclick = function (e) {
+        e.stopPropagation();
+        expanded(path, collapsed);
+    };
+    var name = value && value.constructor && value.constructor.name;
+    if (keys.length === 0 || collapsed) {
+        return (h("span", { class: "object", onclick: onclick },
+            name && name !== "Object" && h("span", { class: "name" }, name),
+            h(Delimiter, { val: "{" }),
+            collapsed && "...",
+            h(Delimiter, { val: "}" })));
+    }
+    var length = keys.length;
+    return (h("span", { class: "object", onclick: onclick },
+        h(Delimiter, { val: "{" }),
+        keys.map(function (key, i) {
+            return (h("div", { class: "row" },
+                h("span", { class: "key" }, key),
+                h(Delimiter, { val: ": " }),
+                Value({ value: value[key], path: path + "." + key, expanded: expanded }),
+                i < length - 1 && h(Delimiter, { val: ", " })));
+        }),
+        h(Delimiter, { val: "}" })));
 }
-
-function Pair(data, classList) {
-  return Wrap(data, h$1("span", { class: classList }, data.value + ""))
+function Arr(props) {
+    var value = props.value, path = props.path, expanded = props.expanded;
+    var collapsed = !expanded(path);
+    var onclick = function (e) {
+        e.stopPropagation();
+        expanded(path, collapsed);
+    };
+    if (value.length === 0 || collapsed) {
+        return (h("span", { class: "array", onclick: onclick },
+            h(Delimiter, { val: "[" }),
+            collapsed && "...",
+            h(Delimiter, { val: "]" })));
+    }
+    var length = value.length;
+    return (h("span", { class: "array", onclick: onclick },
+        h(Delimiter, { val: "[" }),
+        value.map(function (val, i) {
+            return (h("div", { class: "row" },
+                Value({ value: val, path: path + "." + i, expanded: expanded }),
+                i < length - 1 && h(Delimiter, { val: "," })));
+        }),
+        h(Delimiter, { val: "]" })));
 }
-
-function Switch(data, path, expanded) {
-  var value = data.value;
-  switch (typeof value) {
-    case "boolean":
-      return Pair(data, "-boolean")
-    case "function":
-      return Wrap(data, h$1("span", { class: "-function" }))
-    case "number":
-      return Pair(data, "-number")
-    case "object":
-      return Wrap(
-        data,
-        value
-          ? Array.isArray(value)
-            ? Arr(value, path, expanded)
-            : Obj(value, path, expanded)
-          : h$1("span", { class: "-null" })
-      )
-    case "string":
-      return Pair(data, "-string")
-    case "undefined":
-      return Wrap(data, h$1("span", { class: "-undefined" }))
-  }
-  return Pair(data)
+function Value(props) {
+    var type = typeof props.value;
+    switch (type) {
+        case "boolean":
+            return h("span", { class: "boolean" }, String(props.value));
+        case "function":
+            return h("span", { class: "function" }, "f()");
+        case "number":
+            return h("span", { class: "number" }, props.value);
+        case "object":
+            if (!props.value) {
+                return h("span", { class: "null" }, "null");
+            }
+            if (Array.isArray(props.value)) {
+                return Arr(props);
+            }
+            return Obj(props);
+        case "string":
+            return h("span", { class: "string" },
+                "\"",
+                props.value,
+                "\"");
+        case "symbol":
+            return h("span", { class: "symbol" },
+                "\"",
+                props.value.toString(),
+                "\"");
+        case "undefined":
+            return h("span", { class: "undefined" }, "undefined");
+    }
 }
-
-function Expand(path, expanded) {
-  return (
-    expanded &&
-    h$1("span", {
-      class: "-expand",
-      onclick: function() {
-        expanded(path, true);
-      }
-    })
-  )
-}
-
-function Collapse(path, expanded) {
-  return (
-    expanded &&
-    h$1("span", {
-      class: "-collapse",
-      onclick: function() {
-        expanded(path, false);
-      }
-    })
-  )
-}
-
-function Arr(value, path, expanded) {
-  if (expanded && !expanded(path)) {
-    return h$1("span", { class: "-array" }, Expand(path, expanded))
-  }
-  var result = [Collapse(path, expanded)];
-  for (var i = 0; i < value.length; i++) {
-    result.push(Switch({ value: value[i] }, path + "." + i, expanded));
-  }
-  return h$1("span", { class: "-array" }, result)
-}
-
-function Obj(value, path, expanded) {
-  if (expanded && !expanded(path)) {
-    return h$1("span", { class: "-object" }, Expand(path, expanded))
-  }
-  var keys = Object.keys(value);
-  var result = [Collapse(path, expanded)];
-  // TODO later :)
-  // if (
-  //   value.constructor &&
-  //   value.constructor.name &&
-  //   value.constructor.name !== "Object"
-  // ) {
-  //   result.push(`${value.constructor.name} `)
-  // }
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    result.push(
-      Switch({ key: key, value: value[key] }, path + "." + key, expanded)
-    );
-  }
-  return h$1("span", { class: "-object" }, result)
-}
-
 function ObjectView(props) {
-  props.path = props.path || "root";
-  return h$1(
-    "div",
-    { class: "_object-view" },
-    Switch(props, props.path, props.expanded)
-  )
+    var value = props.value, expanded = props.expanded;
+    var path = "root";
+    return h("div", { class: "object-view" }, Value({ value: value, path: path, expanded: expanded }));
 }
 
 var css$12 = ".call-overview-details-pane {\n  display: flex;\n  flex-direction: column;\n  padding: 0.3rem;\n  min-height: 0; }\n  .call-overview-details-pane h3 {\n    margin: 0.3rem 0rem; }\n  .call-overview-details-pane .call-section {\n    display: flex;\n    flex-direction: column;\n    flex: 0 0 11rem;\n    padding: 0.3rem; }\n    .call-overview-details-pane .call-section .call-text-area {\n      flex: 0 0 7rem; }\n    .call-overview-details-pane .call-section .call-text-action {\n      display: flex;\n      justify-content: space-between; }\n      .call-overview-details-pane .call-section .call-text-action .call-text-error {\n        font-size: 0.8rem;\n        color: #ff0000; }\n  .call-overview-details-pane .response-section {\n    display: flex;\n    flex-direction: column;\n    flex: 1 1 100%;\n    min-height: 0; }\n    .call-overview-details-pane .response-section .result-pane {\n      display: flex;\n      flex-direction: column;\n      border: 1px solid #697080;\n      flex: 1 1 100%;\n      min-height: 0; }\n";
@@ -624,7 +600,7 @@ function getDisplayName(event) {
         case "action":
             return event.name + "(" + getArgumentsText(typeof event.data === "undefined" ? [] : [event.data]) + ")";
         case "function":
-            return "f " + event.name + "(" + getArgumentsText(event.args) + ")";
+            return "function " + event.name + "(" + getArgumentsText(event.args) + ")";
         case "message":
             return "[" + event.level + "] " + truncate(event.message);
     }
@@ -1279,8 +1255,9 @@ function debug(nameOrValue, value) {
     if (typeof val !== "function") {
         throw new Error("Can only debug a function but got " + typeof val + ".");
     }
-    registerDebuggedFunction(name, val);
-    return debugWithoutRegistering(val, name);
+    var result = debugWithoutRegistering(val, name);
+    registerDebuggedFunction(name, result);
+    return result;
 }
 
 exports.devtools = devtools;

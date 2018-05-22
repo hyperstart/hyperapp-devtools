@@ -65,7 +65,7 @@ function getDisplayName(event: AppEvent): string {
         typeof event.data === "undefined" ? [] : [event.data]
       )})`
     case "function":
-      return `f ${event.name}(${getArgumentsText(event.args)})`
+      return `function ${event.name}(${getArgumentsText(event.args)})`
     case "message":
       return `[${event.level}] ${truncate(event.message)}`
   }
