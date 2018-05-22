@@ -69,6 +69,7 @@ export type ValueDisplay =
   | "args"
   | "message"
   | "data"
+  | "call-overview"
   | "debugger-state"
 
 export interface State {
@@ -80,6 +81,7 @@ export interface State {
   detailsPaneExpandedPaths: StringMap<boolean>
   paneDisplay: PaneDisplay
   paneShown: boolean
+  callOverviewText?: string
 }
 
 // # Actions
@@ -126,7 +128,7 @@ export interface SetDetailsPaneExpandedPayload {
 
 export interface ExecutePayload {
   type: "function" | "action"
-  runId: string
+  runId?: string
   name: string
   args: any[]
 }
@@ -147,6 +149,7 @@ export interface Actions {
   timeTravel(action: SelectedEvent)
   execute(payload: ExecutePayload)
   deleteRun(id: string)
+  setCallOverviewText(text: string)
 }
 
 export const injectedSetState = "$__SET_STATE"

@@ -33,7 +33,9 @@
 //   const type = typeof props.value
 //   switch (type) {
 //     case "boolean":
+//       return <span class="boolean">{props.value}</span>
 //     case "function":
+//       return <span class="function">{props.value}</span>
 //     case "number":
 //     case "object":
 //     case "string":

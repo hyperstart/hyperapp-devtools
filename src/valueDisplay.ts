@@ -9,11 +9,13 @@ const ALLOWED_VALUE_DISPLAY: AllowedValueDisplays = {
     state: true,
     result: true,
     data: true,
+    "call-overview": true,
     "debugger-state": true
   },
   function: {
     args: true,
     result: true,
+    "call-overview": true,
     "debugger-state": true
   },
   init: {
@@ -27,15 +29,15 @@ const ALLOWED_VALUE_DISPLAY: AllowedValueDisplays = {
 }
 
 export const VALUE_DISPLAYS: StringMap<string[]> = {
-  action: ["state", "result", "data", "debugger-state"],
-  function: ["args", "result", "debugger-state"],
+  action: ["state", "call-overview", "result", "data", "debugger-state"],
+  function: ["call-overview", "args", "result", "debugger-state"],
   init: ["state", "debugger-state"],
   message: ["message", "debugger-state"]
 }
 
 const DEFAULT_VALUE_DISPLAYS: StringMap<ValueDisplay> = {
   action: "state",
-  function: "result",
+  function: "call-overview",
   init: "state",
   message: "message"
 }

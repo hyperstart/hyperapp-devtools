@@ -1,5 +1,5 @@
-import "./ObjectDetailsPane.scss";
 import { State, Actions } from "../api";
+import "./ObjectDetailsPane.scss";
 export interface ObjectDetailsPaneProps {
     state: State;
     actions: Actions;

@@ -14,3 +14,13 @@ export function truncate(value: string, maxLength: number = 30): string {
   }
   return value.substr(0, maxLength - 2) + "..."
 }
+
+export function getErrorMessage(error: any): string {
+  if (typeof error === "string") {
+    return error
+  }
+  if (error instanceof Error) {
+    return error.message
+  }
+  return JSON.stringify(error)
+}

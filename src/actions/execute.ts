@@ -22,7 +22,7 @@ function executeFunction(payload: api.ExecutePayload, state: api.State) {
 }
 
 export const execute = (payload: api.ExecutePayload) => (state: api.State) => {
-  const { type, runId, name, args } = payload
+  const { type } = payload
 
   if (type === "action") {
     executeAction(payload, state)

@@ -13,6 +13,15 @@ function truncate(value, maxLength) {
     }
     return value.substr(0, maxLength - 2) + "...";
 }
+function getErrorMessage(error) {
+    if (typeof error === "string") {
+        return error;
+    }
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return JSON.stringify(error);
+}
 
 function h(name, attributes) {
   var rest = [];
@@ -127,17 +136,46 @@ function canTravelToSelectedEvent(state) {
     }
     return false;
 }
+function getCallArgsText(event) {
+    if (event.type === "action") {
+        if (event.data === undefined) {
+            return "";
+        }
+        return JSON.stringify(event.data);
+    }
+    if (event.args.length === 0) {
+        return "";
+    }
+    var str = JSON.stringify(event.args);
+    return str.substring(1, str.length - 1);
+}
+function getCallNameText(event) {
+    return (event.type === "action" ? "actions." : "") + event.name;
+}
+function getCallText(event) {
+    return getCallNameText(event) + "(" + getCallArgsText(event) + ")";
+}
+function getArgsFromCallText(event, text) {
+    var prefix = getCallNameText(event) + "(";
+    var suffix = ")";
+    if (!text.startsWith(prefix) || !text.endsWith(suffix)) {
+        throw new Error("Call must be of the form: \"" + prefix + "(arg1, arg2, ...)\"");
+    }
+    return JSON.parse("[" + text.substring(prefix.length, text.length - 1) + "]");
+}
 
 var ALLOWED_VALUE_DISPLAY = {
     action: {
         state: true,
         result: true,
         data: true,
+        "call-overview": true,
         "debugger-state": true
     },
     function: {
         args: true,
         result: true,
+        "call-overview": true,
         "debugger-state": true
     },
     init: {
@@ -150,14 +188,14 @@ var ALLOWED_VALUE_DISPLAY = {
     }
 };
 var VALUE_DISPLAYS = {
-    action: ["state", "result", "data", "debugger-state"],
-    function: ["args", "result", "debugger-state"],
+    action: ["state", "call-overview", "result", "data", "debugger-state"],
+    function: ["call-overview", "args", "result", "debugger-state"],
     init: ["state", "debugger-state"],
     message: ["message", "debugger-state"]
 };
 var DEFAULT_VALUE_DISPLAYS = {
     action: "state",
-    function: "result",
+    function: "call-overview",
     init: "state",
     message: "message"
 };
@@ -178,6 +216,7 @@ var LABELS = {
     args: "Show function arguments",
     message: "Show message",
     data: "Show action data",
+    "call-overview": "Overview of the call",
     "debugger-state": "Show debugger full state (for debug only)"
 };
 function ValueDisplaySelect(props) {
@@ -239,11 +278,8 @@ function DebugPaneToolbar(props) {
 var css$8 = ".debug-pane-content {\n  display: flex;\n  flex-direction: row;\n  flex-grow: 1;\n  min-width: 0;\n  min-height: 0; }\n";
 styleInject(css$8);
 
-var css$10 = ".object-details-pane {\n  flex: 0 0 60%;\n  border: 1px solid #697080;\n  margin: 0.1rem; }\n  .object-details-pane pre {\n    margin: 0rem 0.2rem;\n    font-family: \"Roboto Mono\", monospace;\n    font-size: 0.7rem;\n    line-height: 1rem; }\n";
+var css$10 = "@charset \"UTF-8\";\n._object-view {\n  display: flex;\n  flex-grow: 1;\n  overflow: auto;\n  color: #c0c5ce;\n  white-space: nowrap;\n  background: #2b303b;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 0.8rem;\n  line-height: 1rem; }\n  ._object-view .-row {\n    padding: 0 0 0 2ch; }\n    ._object-view .-row:not(:last-of-type)::after {\n      content: \",\"; }\n  ._object-view .-key {\n    color: #bf616a; }\n    ._object-view .-key::after {\n      color: #c0c5ce;\n      content: \": \"; }\n  ._object-view .-null::before {\n    color: #d08770;\n    content: \"null\"; }\n  ._object-view .-array::after {\n    content: \"]\"; }\n  ._object-view .-array::before {\n    content: \"[\"; }\n  ._object-view .-boolean {\n    color: #96b5b4; }\n  ._object-view .-function::before {\n    content: \"ƒ\"; }\n  ._object-view .-number {\n    color: #ebcb8b; }\n  ._object-view .-object::after {\n    content: \"}\"; }\n  ._object-view .-object::before {\n    content: \"{\"; }\n  ._object-view .-string {\n    color: #a3be8c; }\n    ._object-view .-string::after {\n      content: \"'\"; }\n    ._object-view .-string::before {\n      content: \"'\"; }\n  ._object-view .-undefined::before {\n    color: #d08770;\n    content: \"undefined\"; }\n  ._object-view .-expand::before {\n    content: \"+\"; }\n  ._object-view .-collapse::before {\n    content: \"-\"; }\n";
 styleInject(css$10);
-
-var css$12 = "@charset \"UTF-8\";\n._object-view {\n  display: flex;\n  flex-grow: 1;\n  overflow: auto;\n  color: #c0c5ce;\n  white-space: nowrap;\n  background: #2b303b;\n  font-family: \"Roboto Mono\", monospace;\n  font-size: 0.8rem;\n  line-height: 1rem; }\n  ._object-view .-row {\n    padding: 0 0 0 2ch; }\n    ._object-view .-row:not(:last-of-type)::after {\n      content: \",\"; }\n  ._object-view .-key {\n    color: #bf616a; }\n    ._object-view .-key::after {\n      color: #c0c5ce;\n      content: \": \"; }\n  ._object-view .-null::before {\n    color: #d08770;\n    content: \"null\"; }\n  ._object-view .-array::after {\n    content: \"]\"; }\n  ._object-view .-array::before {\n    content: \"[\"; }\n  ._object-view .-boolean {\n    color: #96b5b4; }\n  ._object-view .-function::before {\n    content: \"ƒ\"; }\n  ._object-view .-number {\n    color: #ebcb8b; }\n  ._object-view .-object::after {\n    content: \"}\"; }\n  ._object-view .-object::before {\n    content: \"{\"; }\n  ._object-view .-string {\n    color: #a3be8c; }\n    ._object-view .-string::after {\n      content: \"'\"; }\n    ._object-view .-string::before {\n      content: \"'\"; }\n  ._object-view .-undefined::before {\n    color: #d08770;\n    content: \"undefined\"; }\n  ._object-view .-expand::before {\n    content: \"+\"; }\n  ._object-view .-collapse::before {\n    content: \"-\"; }\n";
-styleInject(css$12);
 
 // this file is taken from https://raw.githubusercontent.com/Mytrill/hyperapp-object-view
 // TODO: replace by the real hyperapp-object-view once Whaaley merge the PR :)
@@ -361,6 +397,73 @@ function ObjectView(props) {
   )
 }
 
+var css$12 = ".call-overview-details-pane {\n  display: flex;\n  flex-direction: column;\n  padding: 0.3rem;\n  min-height: 0; }\n  .call-overview-details-pane h3 {\n    margin: 0.3rem 0rem; }\n  .call-overview-details-pane .call-section {\n    display: flex;\n    flex-direction: column;\n    flex: 0 0 11rem;\n    padding: 0.3rem; }\n    .call-overview-details-pane .call-section .call-text-area {\n      flex: 0 0 7rem; }\n    .call-overview-details-pane .call-section .call-text-action {\n      display: flex;\n      justify-content: space-between; }\n      .call-overview-details-pane .call-section .call-text-action .call-text-error {\n        font-size: 0.8rem;\n        color: #ff0000; }\n  .call-overview-details-pane .response-section {\n    display: flex;\n    flex-direction: column;\n    flex: 1 1 100%;\n    min-height: 0; }\n    .call-overview-details-pane .response-section .result-pane {\n      display: flex;\n      flex-direction: column;\n      border: 1px solid #697080;\n      flex: 1 1 100%;\n      min-height: 0; }\n";
+styleInject(css$12);
+
+// # getCallProps
+function getCallProps(props) {
+    var state = props.state, actions = props.actions, event = props.event;
+    try {
+        var args = getArgsFromCallText(event, state.callOverviewText);
+        return { state: state, actions: actions, event: event, args: args };
+    }
+    catch (e) {
+        var error = getErrorMessage(e);
+        return { state: state, actions: actions, event: event, error: error };
+    }
+}
+// # CallTextArea
+function CallTextArea(props) {
+    var state = props.state, actions = props.actions;
+    return (h("textarea", { class: "call-text-area", value: state.callOverviewText, oninput: function (e) {
+            actions.setCallOverviewText(e.target["value"]);
+        } }));
+}
+// # CallTextAction
+function CallTextAction(props) {
+    var state = props.state, actions = props.actions, event = props.event, args = props.args, error = props.error;
+    return (h("div", { class: "call-text-action" },
+        error ? h("div", { class: "call-text-error" }, error) : h("div", null),
+        h("button", { onclick: function () {
+                actions.execute({
+                    type: event.type,
+                    name: event.name,
+                    runId: state.selectedEvent.runId,
+                    args: args
+                });
+            }, disabled: !!error }, "Execute")));
+}
+// # ResultPane
+function ResultPane(props) {
+    var state = props.state, actions = props.actions, event = props.event;
+    function expanded(path, expanded) {
+        var result = isValueDisplayExpanded(state, path);
+        if (typeof expanded === "boolean") {
+            actions.setDetailsPaneExpanded({
+                expanded: !result,
+                path: path
+            });
+        }
+        return result;
+    }
+    return (h("div", { class: "result-pane scrollable" }, ObjectView({ value: event.result, expanded: expanded })));
+}
+function CallOverviewDetailsPane(props) {
+    var callProps = getCallProps(props);
+    return (h("div", { class: "object-details-pane scrollable" },
+        h("div", { class: "scrollable-content call-overview-details-pane" },
+            h("section", { class: "call-section" },
+                h("h3", null, "Call"),
+                CallTextArea(callProps),
+                CallTextAction(callProps)),
+            h("section", { class: "response-section" },
+                h("h3", null, "Response"),
+                ResultPane(callProps)))));
+}
+
+var css$14 = ".object-details-pane {\n  flex: 0 0 60%;\n  border: 1px solid #697080;\n  margin: 0.1rem; }\n  .object-details-pane pre {\n    margin: 0rem 0.2rem;\n    font-family: \"Roboto Mono\", monospace;\n    font-size: 0.7rem;\n    line-height: 1rem; }\n";
+styleInject(css$14);
+
 function Pane(props, value) {
     var state = props.state, actions = props.actions;
     function expanded(path, expanded) {
@@ -450,19 +553,21 @@ function ObjectDetailsPane(props) {
             return PaneMessage({ state: state, actions: actions, event: event });
         case "state":
             return PaneState({ state: state, actions: actions, event: event });
+        case "call-overview":
+            return CallOverviewDetailsPane({ state: state, actions: actions, event: event });
         case "debugger-state":
             return PaneDebuggerState({ state: state, actions: actions, event: event });
     }
 }
 
-var css$14 = ".runs-pane {\n  flex: 0 0 40%;\n  border: 1px solid #697080;\n  margin: 0.1rem;\n  align-items: stretch; }\n  .runs-pane .runs-pane-runs {\n    margin: 0.2rem 0rem 0.4rem 0.2rem;\n    padding: 0; }\n";
-styleInject(css$14);
-
-var css$16 = ".run-pane-item {\n  list-style-type: none;\n  width: 100%; }\n  .run-pane-item h2 {\n    font-size: 1.2rem;\n    margin: 0.2rem 0 0.2rem 0; }\n";
+var css$16 = ".runs-pane {\n  flex: 0 0 40%;\n  border: 1px solid #697080;\n  margin: 0.1rem;\n  align-items: stretch; }\n  .runs-pane .runs-pane-runs {\n    margin: 0.2rem 0rem 0.4rem 0.2rem;\n    padding: 0; }\n";
 styleInject(css$16);
 
-var css$18 = ".run-event-count {\n  color: #ff6600; }\n\n.run-event {\n  margin: 0rem;\n  width: 100%; }\n  .run-event .item-link {\n    display: block;\n    color: #dbdbdb; }\n    .run-event .item-link .error {\n      color: #ff0000; }\n    .run-event .item-link .warn {\n      color: #ff6600; }\n    .run-event .item-link:hover {\n      background-color: #394252;\n      text-decoration: none;\n      color: #dbdbdb; }\n    .run-event .item-link:focus {\n      text-decoration: none; }\n    .run-event .item-link.selected {\n      background-color: #4c5875;\n      font-weight: bold;\n      color: #dbdbdb; }\n  .run-event .icon:hover {\n    color: #9f9eff; }\n";
+var css$18 = ".run-pane-item {\n  list-style-type: none;\n  width: 100%; }\n  .run-pane-item h2 {\n    font-size: 1.2rem;\n    margin: 0.2rem 0 0.2rem 0; }\n";
 styleInject(css$18);
+
+var css$20 = ".run-event-count {\n  color: #ff6600; }\n\n.run-event {\n  margin: 0rem;\n  width: 100%; }\n  .run-event .item-link {\n    display: block;\n    color: #dbdbdb; }\n    .run-event .item-link .error {\n      color: #ff0000; }\n    .run-event .item-link .warn {\n      color: #ff6600; }\n    .run-event .item-link:hover {\n      background-color: #394252;\n      text-decoration: none;\n      color: #dbdbdb; }\n    .run-event .item-link:focus {\n      text-decoration: none; }\n    .run-event .item-link.selected {\n      background-color: #4c5875;\n      font-weight: bold;\n      color: #dbdbdb; }\n  .run-event .icon:hover {\n    color: #9f9eff; }\n";
+styleInject(css$20);
 
 // # Helpers
 function getRepeatText(run, events, index) {
@@ -578,8 +683,8 @@ function RunEvent(props) {
             })));
 }
 
-var css$20 = ".run-event-list {\n  list-style-type: none;\n  margin: 0 0 0 0.6rem;\n  padding: 0; }\n";
-styleInject(css$20);
+var css$22 = ".run-event-list {\n  list-style-type: none;\n  margin: 0 0 0 0.6rem;\n  padding: 0; }\n";
+styleInject(css$22);
 
 function RunEventList(props) {
     var state = props.state, actions = props.actions, run = props.run, events = props.events;
@@ -640,8 +745,8 @@ function DebugPaneContent(props) {
         ObjectDetailsPane({ state: state, actions: actions })));
 }
 
-var css$22 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #2b303b;\n  border: 1px solid #697080;\n  color: #dbdbdb; }\n  .debug-pane a {\n    text-decoration: none; }\n";
-styleInject(css$22);
+var css$24 = ".debug-pane {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n  background: #2b303b;\n  border: 1px solid #697080;\n  color: #dbdbdb; }\n  .debug-pane a {\n    text-decoration: none; }\n";
+styleInject(css$24);
 
 function DebugPane(props) {
     var state = props.state, actions = props.actions;
@@ -651,8 +756,8 @@ function DebugPane(props) {
         DebugPaneContent({ state: state, actions: actions })));
 }
 
-var css$24 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n";
-styleInject(css$24);
+var css$26 = ".toggle-pane-button {\n  position: fixed;\n  right: 2%;\n  bottom: 2%; }\n";
+styleInject(css$26);
 
 function TogglePaneButton(props) {
     var state = props.state, actions = props.actions;
@@ -835,7 +940,8 @@ var logCallEnd = function (payload) { return function (state) {
         eventId: eventId
     };
     valueDisplay = sanitizeValueDisplay(valueDisplay, event);
-    return { runsById: runsById, selectedEvent: selectedEvent, valueDisplay: valueDisplay };
+    var callOverviewText = getCallText(event);
+    return { runsById: runsById, selectedEvent: selectedEvent, valueDisplay: valueDisplay, callOverviewText: callOverviewText };
 }; };
 
 function getEvent(state, run, payload) {
@@ -937,12 +1043,23 @@ var logMessage = function (payload) { return function (state) {
     var _a;
 }; };
 
+function getCallOverviewText(state, event) {
+    if (event.type === "action" || event.type === "function") {
+        return getCallText(event);
+    }
+    return state.callOverviewText;
+}
 var select = function (selectedEvent) { return function (state) {
     var event = getSelectedEvent(state, selectedEvent);
     return {
         selectedEvent: selectedEvent,
-        valueDisplay: sanitizeValueDisplay(state.valueDisplay, event)
+        valueDisplay: sanitizeValueDisplay(state.valueDisplay, event),
+        callOverviewText: getCallOverviewText(state, event)
     };
+}; };
+
+var setCallOverviewText = function (callOverviewText) { return function (state) {
+    return { callOverviewText: callOverviewText };
 }; };
 
 var setDetailsPaneExpanded = function (payload) { return function (state) {
@@ -1019,6 +1136,7 @@ var actions = Object.freeze({
 	logInit: logInit,
 	logMessage: logMessage,
 	select: select,
+	setCallOverviewText: setCallOverviewText,
 	setDetailsPaneExpanded: setDetailsPaneExpanded,
 	setPaneDisplay: setPaneDisplay,
 	setValueDisplay: setValueDisplay,

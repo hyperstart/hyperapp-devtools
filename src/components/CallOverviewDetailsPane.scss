@@ -1,0 +1,48 @@
+@import "variables";
+
+.call-overview-details-pane {
+  display: flex;
+  flex-direction: column;
+  padding: 0.3rem;
+  min-height: 0;
+
+  h3 {
+    margin: 0.3rem 0rem;
+  }
+
+  .call-section {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 11rem;
+    padding: 0.3rem;
+
+    .call-text-area {
+      flex: 0 0 7rem;
+    }
+
+    .call-text-action {
+      display: flex;
+      justify-content: space-between;
+
+      .call-text-error {
+        font-size: 0.8rem;
+        color: $text-error-color;
+      }
+    }
+  }
+
+  .response-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 100%;
+    min-height: 0;
+
+    .result-pane {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid $border-color;
+      flex: 1 1 100%;
+      min-height: 0;
+    }
+  }
+}

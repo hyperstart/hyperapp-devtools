@@ -1,6 +1,6 @@
 import * as api from "../api"
 import { merge } from "../immutable"
-import { getLatestRunId } from "../selectors"
+import { getLatestRunId, getCallText } from "../selectors"
 import { sanitizeValueDisplay } from "../valueDisplay"
 
 export const logCallEnd = (payload: api.LogCallEndPayload) => (
@@ -45,6 +45,7 @@ export const logCallEnd = (payload: api.LogCallEndPayload) => (
   }
 
   valueDisplay = sanitizeValueDisplay(valueDisplay, event)
+  const callOverviewText = getCallText(event as any)
 
-  return { runsById, selectedEvent, valueDisplay }
+  return { runsById, selectedEvent, valueDisplay, callOverviewText }
 }

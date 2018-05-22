@@ -1,11 +1,11 @@
 import { h } from "hyperapp"
 
-import "./ObjectDetailsPane.scss"
-
 import { ObjectView } from "./ObjectView"
-
 import { State, Actions, Run, AppEvent } from "../api"
 import { getSelectedEvent, isValueDisplayExpanded } from "../selectors"
+import { CallOverviewDetailsPane } from "./CallOverviewDetailsPane"
+
+import "./ObjectDetailsPane.scss"
 
 interface PaneProps {
   state: State
@@ -128,6 +128,8 @@ export function ObjectDetailsPane(props: ObjectDetailsPaneProps) {
       return PaneMessage({ state, actions, event })
     case "state":
       return PaneState({ state, actions, event })
+    case "call-overview":
+      return CallOverviewDetailsPane({ state, actions, event: event as any })
     case "debugger-state":
       return PaneDebuggerState({ state, actions, event })
   }

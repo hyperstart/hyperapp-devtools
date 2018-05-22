@@ -1,4 +1,11 @@
-import { AppEvent, State, Run, SelectedEvent } from "./api"
+import {
+  AppEvent,
+  State,
+  Run,
+  SelectedEvent,
+  ActionEvent,
+  FunctionEvent
+} from "./api"
 import { get, Path } from "./immutable"
 
 export function isValueDisplayExpanded(state: State, path: string): boolean {
@@ -61,4 +68,39 @@ export function canTravelToSelectedEvent(state: State): boolean {
     return event.state !== run.currentState
   }
   return false
+}
+
+function getCallArgsText(event: ActionEvent | FunctionEvent): string {
+  if (event.type === "action") {
+    if (event.data === undefined) {
+      return ""
+    }
+    return JSON.stringify(event.data)
+  }
+  if (event.args.length === 0) {
+    return ""
+  }
+  const str = JSON.stringify(event.args)
+  return str.substring(1, str.length - 1)
+}
+
+function getCallNameText(event: ActionEvent | FunctionEvent): string {
+  return (event.type === "action" ? "actions." : "") + event.name
+}
+
+export function getCallText(event: ActionEvent | FunctionEvent): string {
+  return `${getCallNameText(event)}(${getCallArgsText(event)})`
+}
+
+export function getArgsFromCallText(
+  event: ActionEvent | FunctionEvent,
+  text: string
+): any[] {
+  const prefix = getCallNameText(event) + "("
+  const suffix = ")"
+  if (!text.startsWith(prefix) || !text.endsWith(suffix)) {
+    throw new Error(`Call must be of the form: "${prefix}(arg1, arg2, ...)"`)
+  }
+
+  return JSON.parse("[" + text.substring(prefix.length, text.length - 1) + "]")
 }

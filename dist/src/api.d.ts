@@ -51,7 +51,7 @@ export interface SelectedEvent {
     eventId: string;
 }
 export declare type PaneDisplay = "fullscreen" | "right" | "bottom";
-export declare type ValueDisplay = "state" | "result" | "args" | "message" | "data" | "debugger-state";
+export declare type ValueDisplay = "state" | "result" | "args" | "message" | "data" | "call-overview" | "debugger-state";
 export interface State {
     runs: string[];
     runsById: StringMap<Run>;
@@ -61,6 +61,7 @@ export interface State {
     detailsPaneExpandedPaths: StringMap<boolean>;
     paneDisplay: PaneDisplay;
     paneShown: boolean;
+    callOverviewText?: string;
 }
 export interface LogInitPayload {
     runId: string;
@@ -97,7 +98,7 @@ export interface SetDetailsPaneExpandedPayload {
 }
 export interface ExecutePayload {
     type: "function" | "action";
-    runId: string;
+    runId?: string;
     name: string;
     args: any[];
 }
@@ -117,5 +118,6 @@ export interface Actions {
     timeTravel(action: SelectedEvent): any;
     execute(payload: ExecutePayload): any;
     deleteRun(id: string): any;
+    setCallOverviewText(text: string): any;
 }
 export declare const injectedSetState = "$__SET_STATE";

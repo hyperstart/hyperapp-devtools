@@ -12,6 +12,7 @@ const LABELS: StringMap<string> = {
   args: "Show function arguments",
   message: "Show message",
   data: "Show action data",
+  "call-overview": "Overview of the call",
   "debugger-state": "Show debugger full state (for debug only)"
 }
 
